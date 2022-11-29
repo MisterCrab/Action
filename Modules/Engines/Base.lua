@@ -132,7 +132,7 @@ end
  
 function A:CheckInPvP()
 	-- @return boolean
-    return 
+    if  
 		self.Zone == "arena" or 
 		self.Zone == "pvp" or 
 		UnitInBattleground(player) or 
@@ -141,6 +141,10 @@ function A:CheckInPvP()
 		-- Patch 8.2
 		-- 1519 is The Eternal Palace: Precipice of Dreams
 		( A.ZoneID ~= 1519 and A_Unit(target):IsPlayer() and (A_Unit(target):IsEnemy() or (A_Unit(targettarget):IsPlayer() and A_Unit(targettarget):IsEnemy())) )
+	then 
+		return true 
+	end 
+	return false 
 end
 
 function A.UI_INFO_MESSAGE_IS_WARMODE(...)
