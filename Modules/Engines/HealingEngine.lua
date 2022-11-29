@@ -50,6 +50,7 @@ local TeamCacheFriendlyIndexToPLAYERs	= TeamCacheFriendly.IndexToPLAYERs 	-- ind
 local TeamCacheFriendlyIndexToPETs		= TeamCacheFriendly.IndexToPETs 	-- index to unitID
 local GetToggle							= A.GetToggle
 local AuraIsValid						= A.AuraIsValid
+local BuildToC							= A.BuildToC
 local StdUi								= A.StdUi
 local RunLua							= StdUi.RunLua
 local isClassic							= StdUi.isClassic 
@@ -1091,8 +1092,11 @@ local function SetHealingTarget()
 end
 
 local function SetColorTarget()
-	-- If we have no one to heal or we have already selected unit what need to heal
-	if healingTarget == none or healingTargetGUID == none or healingTargetGUID == UnitGUID(target) then			
+	-- If we have no one to heal or we have already selected unit that need to heal
+	if 	healingTarget == none or healingTargetGUID == none or healingTargetGUID == UnitGUID(target) or 
+		-- TBC+ if user playing through /focus binds
+		(BuildToC >= 20000 and healingTargetGUID == UnitGUID(focus) and (not A_Unit(target):IsExists() or A_Unit(target):IsEnemy())) 		
+	then			
 		return frame:SetColor(none)
 	end	
 	
