@@ -2466,6 +2466,19 @@ local Info = {
 		[173879] = true, -- Stalwart Target Raider's Training Dummy
 		[149860] = true, -- Training Dummy
 		[174435] = true, -- Training Dummy
+		-- DragonFlight
+		[198594] = true, -- Cleave Training Dummy
+		[194648] = true, -- Training Dummy
+		[189632] = true, -- Animated Duelist
+		[194643] = true, -- Dungeoneer's Training Dummy
+		[197833] = true, -- PvP Training Dummy
+		[194644] = true, -- Dungeoneer's Training Dummy
+		[189617] = true, -- Boulderfist Raider's Tanking Dummy
+		[194649] = true, -- Normal Tanking Dummy
+		[194645] = true, -- Healing Training Dummy
+		[197834] = true, -- Healing PvP Training Dummy
+		[194646] = true, -- Healing Training Dummy
+		[193563] = true, -- Azure Span Training Dummy
 	},
 	IsDummyPvP 					= {
 		-- City (SW, Orgri, ...)
