@@ -321,7 +321,7 @@ function A.MultiUnits.GetByRangeInCombat(self, range, count, upTTD)
 	local total = 0
 
 	for namePlateUnitID in pairs(MultiUnitsActiveUnitPlates) do 
-		if A_Unit(namePlateUnitID):CombatTime() > 0 and (not range or A_Unit(namePlateUnitID):CanInterract(range)) and (not upTTD or A_Unit(namePlateUnitID):TimeToDie() >= upTTD) and not A_Unit(namePlateUnitID):IsTotem() then 
+		if (A_Unit(namePlateUnitID):CombatTime() > 0 or A_Unit(namePlateUnitID):IsDummy()) and (not range or A_Unit(namePlateUnitID):CanInterract(range)) and (not upTTD or A_Unit(namePlateUnitID):TimeToDie() >= upTTD) and not A_Unit(namePlateUnitID):IsTotem() then 
 			total = total + 1
 		end 
 		
