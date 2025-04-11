@@ -85,7 +85,7 @@ if DBM then
 			error("Bad argument 'text' (nil value) for function DBM_GetTimeRemaining")
 		end
 
-		return huge, huge
+		return 0, 0
 	end
 
 	DBM_GetTimeRemainingBySpellID = function(spellID)
@@ -99,7 +99,7 @@ if DBM then
 			return remaining, expirationTime
 		end
 
-		return huge, huge
+		return 0, 0
 	end
 
 	hooksecurefunc(DBM, "StartCombat", function(DBM, mod, delay, event)
@@ -248,7 +248,7 @@ if BigWigsLoader then
 			error("Bad argument 'text' (nil value) for function BigWigs_GetTimeRemaining")
 		end
 
-		return huge, huge
+		return 0, 0
 	end
 	BigWigs_GetNameplateTimeRemaining = function(key)
 		local t
@@ -276,7 +276,7 @@ if BigWigsLoader then
 		else
 			error("Bad argument 'text' (nil value) for function BigWigs_GetTimeRemaining")
 		end
-		return huge, huge
+		return 0, 0
 	end
 end
 
@@ -355,12 +355,18 @@ function A.BossMods:GetTimer(name)
 end
 
 function A.BossMods:GetNameplateTimer(spellID)
-    -- @return @number, @number
-    -- only works for BigWigs, returns huge if not found, returns time until CD or 0 if spellqueued
-    if spellID and GetToggle(1, "BossMods") and self.HasBigWigs then
-        return BigWigs_GetNameplateTimeRemaining(spellID)
-    end
-    return huge, huge
+ 	-- @return @number, @number
+ 	-- only works for BigWigs, returns huge if not found, returns time until CD or 0 if spellqueued
+ 	local remaining, expirationTime = huge, huge
+ 	if spellID and self:HasAnyAddon() and GetToggle(1, "BossMods") then
+ 		if self.HasDBM then
+ 			return remaining, expirationTime
+ 		end
+ 		if self.HasBigWigs then
+ 			remaining, expirationTime = BigWigs_GetNameplateTimeRemaining(spellID)
+ 		end
+ 	end
+ 	return remaining, expirationTime
 end
 
 function A.BossMods:IsEngage(name)
