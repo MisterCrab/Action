@@ -1633,14 +1633,43 @@ local function ComputeRuneCooldown(Slot, BypassRecovery)
 end
 
 -- rune
-function Player:Rune()
-	local Count = 0
-	for i = 1, 6 do
-		if ComputeRuneCooldown(i) == 0 then
-			Count = Count + 1
-		end
-	end
-	return Count
+function Player:Rune(runeType)
+    local specificRuneCount = 0
+    local deathRuneCount = 0
+
+    local bloodSlots = {1, 2}
+    local unholySlots = {3, 4}
+    local frostSlots = {5, 6}
+    
+    local slotsToCheck = {}
+    if runeType == "Blood" then
+        slotsToCheck = bloodSlots
+    elseif runeType == "Unholy" then
+        slotsToCheck = unholySlots
+    elseif runeType == "Frost" then
+        slotsToCheck = frostSlots
+    elseif not runeType then
+        local totalRunes = 0
+        for i=1, 6 do
+            if GetRuneCooldown(i) == 0 then
+                totalRunes = totalRunes + 1
+            end
+        end
+        return totalRunes
+    end
+
+    for i = 1, 6 do
+        if GetRuneCooldown(i) == 0 and GetRuneType(i) == 4 then
+            deathRuneCount = deathRuneCount + 1
+        end
+    end
+
+    for _, slotIndex in ipairs(slotsToCheck) do
+        if GetRuneCooldown(slotIndex) == 0 and GetRuneType(slotIndex) ~= 4 then
+            specificRuneCount = specificRuneCount + 1
+        end
+    end
+        return specificRuneCount + deathRuneCount
 end
 
 -- rune.time_to_x
