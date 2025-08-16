@@ -769,6 +769,7 @@ TMW:RegisterCallback("TMW_ACTION_PLAYER_SPECIALIZATION_CHANGED", function()
 	ownerColor = CharacterToUniversalColor[ownerVersion] and CharacterToUniversalColor[ownerVersion][A[owner]] or CharacterToUniversalColor[""]
 	if ownerColor then 
 		Character.texture:SetColorTexture(ownerColor())
+		C_Timer.After(20, function() Character:Hide() end)
 	end 
 end) 
 
@@ -839,6 +840,7 @@ local function UpdateFrames()
             Character:Show()
         end
         Character:SetScale((0.71111112833023 * (1080 / myheight)) / (Character:GetParent() and Character:GetParent():GetEffectiveScale() or 1))	
+		C_Timer.After(20, function() Character:Hide() end)
 	end 
 end
 
