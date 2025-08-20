@@ -54,8 +54,8 @@ local issecure					= _G.issecure
 local 	 UnitLevel,    UnitPower, 	 UnitPowerMax, 	  UnitStagger, 	  UnitAttackSpeed, 	  UnitRangedDamage,    UnitDamage,    C_UnitAuras,    UnitGUID=
 	  _G.UnitLevel, _G.UnitPower, _G.UnitPowerMax, _G.UnitStagger, _G.UnitAttackSpeed, _G.UnitRangedDamage, _G.UnitDamage, _G.C_UnitAuras, _G.UnitGUID
 
-local	 GetPowerRegen,    GetRuneCooldown,    GetShapeshiftForm, 	 GetCritChance,    GetHaste, 	GetMasteryEffect, 	 GetVersatilityBonus, 	 GetCombatRatingBonus =
-	  _G.GetPowerRegen, _G.GetRuneCooldown, _G.GetShapeshiftForm, _G.GetCritChance, _G.GetHaste, _G.GetMasteryEffect, _G.GetVersatilityBonus, _G.GetCombatRatingBonus
+local	 GetPowerRegen,    GetRuneCooldown,	   GetRuneType,    GetShapeshiftForm, 	 GetCritChance,    GetHaste, 	GetMasteryEffect, 	 GetVersatilityBonus, 	 GetCombatRatingBonus, 	  GetComboPoints =
+	  _G.GetPowerRegen, _G.GetRuneCooldown, _G.GetRuneType, _G.GetShapeshiftForm, _G.GetCritChance, _G.GetHaste, _G.GetMasteryEffect, _G.GetVersatilityBonus, _G.GetCombatRatingBonus, _G.GetComboPoints 
 	  
 local 	 									 IsEquippedItem, 	IsStealthed, 	IsMounted, 	  IsFalling, 	IsSwimming,    IsSubmerged = 	  
 	  C_Item and C_Item.IsEquippedItem or _G.IsEquippedItem, _G.IsStealthed, _G.IsMounted, _G.IsFalling, _G.IsSwimming, _G.IsSubmerged 
@@ -177,6 +177,12 @@ local Data = {
 	-- Inventory
 	CheckInv 	= {},
 	InfoInv 	= {},	
+	-- Runes
+	RunePresence = {
+		[CONST.DEATHKNIGHT_BLOOD] = 1, 	Blood = 1, 
+		[CONST.DEATHKNIGHT_FROST] = 3, 	Frost = 3,
+		[CONST.DEATHKNIGHT_UNHOLY] = 2, Unholy = 2,
+	},
 } 
 
 local DataAuraStealthed				= Data.AuraStealthed
@@ -189,6 +195,7 @@ local DataCheckBags					= Data.CheckBags
 local DataInfoBags					= Data.InfoBags
 local DataCheckInv					= Data.CheckInv
 local DataInfoInv					= Data.InfoInv
+local DataRunePresence				= Data.RunePresence
 
 function Data.logAura(...)
 	local _, EVENT, _, SourceGUID, _, _, _, DestGUID, _, _, _, _, spellName, _, auraType = CombatLogGetCurrentEventInfo() 
@@ -1633,43 +1640,19 @@ local function ComputeRuneCooldown(Slot, BypassRecovery)
 end
 
 -- rune
-function Player:Rune(runeType)
-    local specificRuneCount = 0
-    local deathRuneCount = 0
+function Player:Rune(presence)
+	local presenceType = DataRunePresence[presence]	
+    local c = 0
 
-    local bloodSlots = {1, 2}
-    local unholySlots = {3, 4}
-    local frostSlots = {5, 6}
-    
-    local slotsToCheck = {}
-    if runeType == "Blood" then
-        slotsToCheck = bloodSlots
-    elseif runeType == "Unholy" then
-        slotsToCheck = unholySlots
-    elseif runeType == "Frost" then
-        slotsToCheck = frostSlots
-    elseif not runeType then
-        local totalRunes = 0
-        for i=1, 6 do
-            if GetRuneCooldown(i) == 0 then
-                totalRunes = totalRunes + 1
-            end
-        end
-        return totalRunes
-    end
+	local runeType
+	for i = 1, 6 do
+		runeType = presenceType and GetRuneType and GetRuneType(i) or nil
+		if ComputeRuneCooldown(i) == 0 and (runeType == presenceType or runeType == 4) then -- 4 is RUNETYPE_DEATH
+			c = c + 1
+		end
+	end	
 
-    for i = 1, 6 do
-        if GetRuneCooldown(i) == 0 and GetRuneType(i) == 4 then
-            deathRuneCount = deathRuneCount + 1
-        end
-    end
-
-    for _, slotIndex in ipairs(slotsToCheck) do
-        if GetRuneCooldown(slotIndex) == 0 and GetRuneType(slotIndex) ~= 4 then
-            specificRuneCount = specificRuneCount + 1
-        end
-    end
-        return specificRuneCount + deathRuneCount
+	return c
 end
 
 -- rune.time_to_x
