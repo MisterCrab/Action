@@ -1512,7 +1512,7 @@ A.CombatTracker									= {
 			
 			-- We need "health > 0" condition to ensure that the unit is still alive
 			if health <= 0 then return 0 end
-			if DMG >= 1 and Hits > 1 and then
+			if DMG >= 1 and Hits > 1 then
 				ttd = (health - ( A_Unit(UNIT):HealthMax() * (X / 100) )) / DMG
 			end 
 		end				
