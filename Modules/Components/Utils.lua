@@ -14,6 +14,7 @@ local strlowerCache  			= TMW.strlowerCache
 local A   						= _G.Action
 local CONST 					= A.Const
 local Listener					= A.Listener
+local TimerSetRefreshAble		= A.TimerSetRefreshAble
 local GetToggle					= A.GetToggle
 local toStr 					= A.toStr
 local toNum 					= A.toNum
@@ -768,8 +769,11 @@ Character.texture:SetColorTexture(ownerColor())
 TMW:RegisterCallback("TMW_ACTION_PLAYER_SPECIALIZATION_CHANGED", function()
 	ownerColor = CharacterToUniversalColor[ownerVersion] and CharacterToUniversalColor[ownerVersion][A[owner]] or CharacterToUniversalColor[""]
 	if ownerColor then 
+		if not Character:IsShown() then
+            Character:Show()
+        end	
 		Character.texture:SetColorTexture(ownerColor())
-		C_Timer.After(20, function() Character:Hide() end)
+		TimerSetRefreshAble("Character:Hide", 20, function() Character:Hide() end)
 	end 
 end) 
 
@@ -840,7 +844,7 @@ local function UpdateFrames()
             Character:Show()
         end
         Character:SetScale((0.71111112833023 * (1080 / myheight)) / (Character:GetParent() and Character:GetParent():GetEffectiveScale() or 1))	
-		C_Timer.After(20, function() Character:Hide() end)
+		TimerSetRefreshAble("Character:Hide", 20, function() Character:Hide() end)
 	end 
 end
 
