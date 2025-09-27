@@ -106,7 +106,6 @@ local player										= "player"
 local target 										= "target"
 local mouseover										= "mouseover"
 local targettarget									= "targettarget"
-local arena 										= "arena"
 
 -------------------------------------------------------------------------------
 -- Conditions
@@ -190,41 +189,55 @@ local Medallion 			= LoC_GetExtra["GladiatorMedallion"] -- BFA, Legion, WoD
 -------------------------------------------------------------------------------
 -- API
 -------------------------------------------------------------------------------
-A.AntiFakeWhite					 	= Create({ Type = "SpellSingleColor", 	ID = 1,		Color = "WHITE",     															  Hidden = true         		   												})
-A.Trinket1 							= Create({ Type = "TrinketBySlot", 		ID = CONST.INVSLOT_TRINKET1,	 				BlockForbidden = true, Desc = "Upper Trinket (/use 13)" 																	})
-A.Trinket2 							= Create({ Type = "TrinketBySlot", 		ID = CONST.INVSLOT_TRINKET2, 					BlockForbidden = true, Desc = "Lower Trinket (/use 14)"																		})
-A.Shoot								= Create({ Type = "Spell", 				ID = 5019, 										QueueForbidden = true, BlockForbidden = true, Hidden = true,  Desc = "Wand" 												})
-A.AutoShot							= Create({ Type = "Spell", 				ID = 75, 										QueueForbidden = true, BlockForbidden = true, Hidden = true,  Desc = "Hunter's shoot" 										})
-A.HS								= Create({ Type = "Item", 				ID = 5512, 										QueueForbidden = true, Desc = "[6] HealthStone", 					skipRange = true										})
-A.AbyssalHealingPotion				= Create({ Type = "Item", 				ID = 169451, 									QueueForbidden = true, Desc = "[6] HealingPotion", 					skipRange = true										})
+A.AntiFakeWhite					 				= Create({ Type = "SpellSingleColor", 	ID = 1,		Color = "WHITE",     															  Hidden = true         		   												})
+A.Trinket1 										= Create({ Type = "TrinketBySlot", 		ID = CONST.INVSLOT_TRINKET1,	 				BlockForbidden = true, Desc = "Upper Trinket (/use 13)" 																	})
+A.Trinket2 										= Create({ Type = "TrinketBySlot", 		ID = CONST.INVSLOT_TRINKET2, 					BlockForbidden = true, Desc = "Lower Trinket (/use 14)"																		})
+A.Shoot											= Create({ Type = "Spell", 				ID = 5019, 										QueueForbidden = true, BlockForbidden = true, Hidden = true,  Desc = "Wand" 												})
+A.AutoShot										= Create({ Type = "Spell", 				ID = 75, 										QueueForbidden = true, BlockForbidden = true, Hidden = true,  Desc = "Hunter's shoot" 										})
+A.HS											= Create({ Type = "Item", 				ID = 5512, 										QueueForbidden = true, Desc = "[6] HealthStone", 					skipRange = true										})
+A.AbyssalHealingPotion							= Create({ Type = "Item", 				ID = 169451, 									QueueForbidden = true, Desc = "[6] HealingPotion", 					skipRange = true										})
 if BuildToC < 90000 then 
-	A.GladiatorMedallion			= Create({ Type = "Spell", 				ID = CONST.SPELLID_GLADIATORS_MEDALLION, 		QueueForbidden = true, Desc = "[5] Trinket", BlockForbidden = true, skipRange = true, isTalent = true 						})
-	A.HonorMedallion				= Create({ Type = "Spell", 				ID = CONST.SPELLID_HONOR_MEDALLION, 			QueueForbidden = true, Desc = "[5] Trinket", BlockForbidden = true, skipRange = true, isReplacement = true					})
+	A.GladiatorMedallion						= Create({ Type = "Spell", 				ID = CONST.SPELLID_GLADIATORS_MEDALLION, 		QueueForbidden = true, Desc = "[5] Trinket", BlockForbidden = true, skipRange = true, isTalent = true 						})
+	A.HonorMedallion							= Create({ Type = "Spell", 				ID = CONST.SPELLID_HONOR_MEDALLION, 			QueueForbidden = true, Desc = "[5] Trinket", BlockForbidden = true, skipRange = true, isReplacement = true					})
 else 	
 	-- SL
 	if BuildToC >= 90000 then 
-		A.PhialofSerenity			= Create({ Type = "Item",  				ID = 177278,									QueueForbidden = true, Desc = "[6] HealingPotion|Dispel",			skipRange = true										})
-		A.SpiritualHealingPotion	= Create({ Type = "Item",  				ID = 171267,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
+		A.PhialofSerenity						= Create({ Type = "Item",  				ID = 177278,									QueueForbidden = true, Desc = "[6] HealingPotion|Dispel",			skipRange = true										})
+		A.SpiritualHealingPotion				= Create({ Type = "Item",  				ID = 171267,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
 	end 
 	
 	-- DF
 	if BuildToC >= 100000 then 
-		A.RefreshingHealingPotion1	= Create({ Type = "Item",  				ID = 191378,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
-		A.RefreshingHealingPotion2	= Create({ Type = "Item",  				ID = 191379,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
-		A.RefreshingHealingPotion3	= Create({ Type = "Item",  				ID = 191380,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
+		A.RefreshingHealingPotion1				= Create({ Type = "Item",  				ID = 191378,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
+		A.RefreshingHealingPotion2				= Create({ Type = "Item",  				ID = 191379,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
+		A.RefreshingHealingPotion3				= Create({ Type = "Item",  				ID = 191380,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						})
 	end 
 	
 	-- TWW 
 	if BuildToC >= 110000 then 
-		A.DemonicHS					= Create({ Type = "Item", 				ID = 224464,									QueueForbidden = true, Desc = "[6] HealthStone", 					skipRange = true										}) -- Demonic Healthstone
-		A.AlgariHealingPotion1		= Create({ Type = "Item",  				ID = 211878,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Algari Healing Potion
-		A.AlgariHealingPotion2		= Create({ Type = "Item",  				ID = 212942,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Fleeting Algari Healing Potion
-		A.AlgariHealingPotion3		= Create({ Type = "Item",  				ID = 211879,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Algari Healing Potion
-		A.AlgariHealingPotion4		= Create({ Type = "Item",  				ID = 212943,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Fleeting Algari Healing Potion
-		A.AlgariHealingPotion5		= Create({ Type = "Item",  				ID = 212944,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Fleeting Algari Healing Potion
-		A.AlgariHealingPotion6		= Create({ Type = "Item",  				ID = 211880,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Algari Healing Potion
-		A.AlgariHealingPotion7		= Create({ Type = "Item",  				ID = 212318,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- QA Algari Healing Potion
+		A.DemonicHS								= Create({ Type = "Item", 				ID = 224464,									QueueForbidden = true, Desc = "[6] HealthStone", 					skipRange = true										}) -- Demonic Healthstone
+		A.AlgariHealingPotion1					= Create({ Type = "Item",  				ID = 211878,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Algari Healing Potion
+		A.AlgariHealingPotion2					= Create({ Type = "Item",  				ID = 212942,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Fleeting Algari Healing Potion
+		A.AlgariHealingPotion3					= Create({ Type = "Item",  				ID = 211879,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Algari Healing Potion
+		A.AlgariHealingPotion4					= Create({ Type = "Item",  				ID = 212943,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Fleeting Algari Healing Potion
+		A.AlgariHealingPotion5					= Create({ Type = "Item",  				ID = 212944,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Fleeting Algari Healing Potion
+		A.AlgariHealingPotion6					= Create({ Type = "Item",  				ID = 211880,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- Algari Healing Potion
+		A.AlgariHealingPotion7					= Create({ Type = "Item",  				ID = 212318,									QueueForbidden = true, Desc = "[6] HealingPotion",					skipRange = true, Texture = 169451						}) -- QA Algari Healing Potion
 	end 
+	
+	-- TWW 11.1.7: AssistedCombat
+	if BuildToC >= 110107 then
+		local ID 								= _G.C_AssistedCombat and _G.C_AssistedCombat.GetActionSpell and _G.C_AssistedCombat.GetActionSpell() or 1229376
+		A.SBA									= Create({ Type = "Spell",  			ID = ID, 										Macro = "/cast spell:thisID", Desc = "Single-Button Assistant", 	skipRange = true, FixedTexture = 6718291				})
+	end
+	
+	-- TWW 11.2
+	if BuildToC >= 110200 then 
+		A.InvigoratingHealingPotion1 			= Create({ Type = "Item", 				ID = 244835, 									QueueForbidden = true, Desc = "[6] HealingPotion", 					skipRange = true, Texture = 169451						}) -- Invigorating Healing Potion
+		A.InvigoratingHealingPotion2		 	= Create({ Type = "Item", 				ID = 244838, 									QueueForbidden = true, Desc = "[6] HealingPotion", 					skipRange = true, Texture = 169451						})
+		A.InvigoratingHealingPotion3 			= Create({ Type = "Item", 				ID = 244839, 									QueueForbidden = true, Desc = "[6] HealingPotion", 					skipRange = true, Texture = 169451						})
+		A.FleetingInvigoratingHealingPotion 	= Create({ Type = "Item", 				ID = 244849, 									QueueForbidden = true, Desc = "[6] HealingPotion", 					skipRange = true, Texture = 169451						}) -- Fleeting Invigorating Healing Potion
+	end
 end
 
 local function IsShoot(unit)
@@ -253,12 +266,14 @@ function A.CanUseHealthstoneOrHealingPotion()
 					return HS							 
 				end
 			elseif A.Zone ~= "arena" and (A.Zone ~= "pvp" or not InstanceInfo.isRated) then 
-				local AlgariHealingPotion = BuildToC >= 110000 and DetermineUsableObject(player, nil, nil, true, nil, A.AlgariHealingPotion7, A.AlgariHealingPotion6, A.AlgariHealingPotion5, A.AlgariHealingPotion4, A.AlgariHealingPotion3, A.AlgariHealingPotion2, A.AlgariHealingPotion1)
-				local RefreshingHealingPotion = BuildToC >= 100000 and DetermineUsableObject(player, nil, nil, true, nil, A.RefreshingHealingPotion3, A.RefreshingHealingPotion2, A.RefreshingHealingPotion1)
-				local HealingPotion = (AlgariHealingPotion  	and AlgariHealingPotion:IsReadyByPassCastGCD(player)  	  and AlgariHealingPotion)  	or  -- TWW
-									  (RefreshingHealingPotion  and RefreshingHealingPotion:IsReadyByPassCastGCD(player)  and RefreshingHealingPotion)  or  -- DF
-									  (A.SpiritualHealingPotion and A.SpiritualHealingPotion:IsReadyByPassCastGCD(player) and A.SpiritualHealingPotion) or  -- SL
-									  (A.AbyssalHealingPotion   and A.AbyssalHealingPotion:IsReadyByPassCastGCD(player)	  and A.AbyssalHealingPotion)		-- BFA
+				local InvigoratingHealingPotion 	= BuildToC >= 110200 and DetermineUsableObject(player, nil, nil, true, nil, A.FleetingInvigoratingHealingPotion, A.InvigoratingHealingPotion3, A.InvigoratingHealingPotion2, A.InvigoratingHealingPotion1)
+				local AlgariHealingPotion 			= BuildToC >= 110000 and DetermineUsableObject(player, nil, nil, true, nil, A.AlgariHealingPotion7, A.AlgariHealingPotion6, A.AlgariHealingPotion5, A.AlgariHealingPotion4, A.AlgariHealingPotion3, A.AlgariHealingPotion2, A.AlgariHealingPotion1)
+				local RefreshingHealingPotion 		= BuildToC >= 100000 and DetermineUsableObject(player, nil, nil, true, nil, A.RefreshingHealingPotion3, A.RefreshingHealingPotion2, A.RefreshingHealingPotion1)
+				local HealingPotion = (InvigoratingHealingPotion  	and InvigoratingHealingPotion:IsReadyByPassCastGCD(player)  and InvigoratingHealingPotion)  or  -- TWW 11.2
+									  (AlgariHealingPotion  		and AlgariHealingPotion:IsReadyByPassCastGCD(player)  	  	and AlgariHealingPotion)  		or  -- TWW
+									  (RefreshingHealingPotion  	and RefreshingHealingPotion:IsReadyByPassCastGCD(player)  	and RefreshingHealingPotion)  	or  -- DF
+									  (A.SpiritualHealingPotion 	and A.SpiritualHealingPotion:IsReadyByPassCastGCD(player) 	and A.SpiritualHealingPotion) 	or  -- SL
+									  (A.AbyssalHealingPotion   	and A.AbyssalHealingPotion:IsReadyByPassCastGCD(player)	  	and A.AbyssalHealingPotion)			-- BFA
 									  
 				
 				if HealingPotion then 
@@ -379,8 +394,8 @@ function A.Rotation(icon)
 			local _, castLeft, _, _, castName, notInterruptable = Unit(player):CastTime() 
 			if castName then 
 				-- Catch Counter Shot 
-				if A.IsInPvP and not notInterruptable and UnitCooldown:GetCooldown(arena, CONST_SPELLID_COUNTER_SHOT) > UnitCooldown:GetMaxDuration(arena, CONST_SPELLID_COUNTER_SHOT) - 1 and UnitCooldown:IsSpellInFly(arena, CONST_SPELLID_COUNTER_SHOT) then 
-					local Caster = UnitCooldown:GetUnitID(arena, CONST_SPELLID_COUNTER_SHOT)
+				if A.IsInPvP and not notInterruptable and UnitCooldown:GetCooldown("arena", CONST_SPELLID_COUNTER_SHOT) > UnitCooldown:GetMaxDuration("arena", CONST_SPELLID_COUNTER_SHOT) - 1 and UnitCooldown:IsSpellInFly("arena", CONST_SPELLID_COUNTER_SHOT) then 
+					local Caster = UnitCooldown:GetUnitID("arena", CONST_SPELLID_COUNTER_SHOT)
 					if Caster and Unit(Caster):GetRange() <= 40 and Unit(player):HasBuffs(TotalAndKickImun) == 0 then 
 						return A:Show(icon, CONST_STOPCAST)
 					end 
@@ -407,7 +422,7 @@ function A.Rotation(icon)
 		end 
 		
 		-- ReTarget ReFocus 
-		if (A.Zone == arena or A.Zone == "pvp") and (A:GetTimeSinceJoinInstance() >= 30 or Unit(player):CombatTime() > 0) then 
+		if (A.Zone == "arena" or A.Zone == "pvp") and (A:GetTimeSinceJoinInstance() >= 30 or Unit(player):CombatTime() > 0) then 
 			if Re:CanTarget(icon) then 
 				return true
 			end 

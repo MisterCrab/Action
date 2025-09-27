@@ -1,10 +1,10 @@
 --- 
-local DateTime 														= "20.08.2025"
+local DateTime 														= "28.09.2025"
 ---
 local pcall, ipairs, pairs, type, assert, error, setfenv, getmetatable, setmetatable, loadstring, next, unpack, select, _G, coroutine, table, math, string =
 	  pcall, ipairs, pairs, type, assert, error, setfenv, getmetatable, setmetatable, loadstring, next, unpack, select, _G, coroutine, table, math, string
 	
-local debugprofilestop												= _G.debugprofilestop_SAFE
+local debugprofilestop												= _G.debugprofilestop
 local hooksecurefunc												= _G.hooksecurefunc
 local wipe															= _G.wipe	
 local tinsert														= table.insert 
@@ -504,7 +504,7 @@ local Localization = {
 				DISABLERETOGGLE = "Block queue remove",
 				DISABLERETOGGLETOOLTIP = "Preventing by repeated message deletion from queue system\nE.g. possible spam macro without being removed\n\nRightClick: Create macro",
 				MACRO = "Macro for your group:",
-				MACROTOOLTIP = "This is what should be sent to the group chat to trigger the assigned action on the specified key\nTo address the action to a specific unit, add them to the macro or leave it as it is for the appointment in Single/AoE rotation\nSupported: raid1-40, party1-2, player, arena1-3\nONLY ONE UNIT FOR ONE MESSAGE!\n\nYour companions can use macros as well, but be careful, they must be loyal to this!\nDON'T LET THE MACRO TO UNIMINANCES AND PEOPLE NOT IN THE THEME!",
+				MACROTOOLTIP = "This is what should be sent to the group chat to trigger the assigned action on the specified key\nTo address the action to a specific unit, add them to the macro or leave it as it is for the appointment in Single/AoE rotation\nSupported: raid1-40, party1-4, player, arena1-5\nONLY ONE UNIT FOR ONE MESSAGE!\n\nYour companions can use macros as well, but be careful, they must be loyal to this!\nDON'T LET THE MACRO TO UNIMINANCES AND PEOPLE NOT IN THE THEME!",
 				KEY = "Key",
 				KEYERROR = "You did not specify a key!",
 				KEYERRORNOEXIST = "key does not exist!",
@@ -1103,7 +1103,7 @@ local Localization = {
 				DISABLERETOGGLE = "Блокировать снятие очереди",
 				DISABLERETOGGLETOOLTIP = "Предотвращает повторным сообщением удаление из системы очереди\nИными словами позволяет спамить макрос без риска быть снятым\n\nПравая кнопка мыши: Создать макрос",
 				MACRO = "Макрос для вашей группы:",
-				MACROTOOLTIP = "Это то, что должно посылаться в чат группы для срабатывания назначенного действия по заданному ключу\nЧтобы адресовать действие к конкретному юниту допишите их в макрос или оставьте как есть для назначения в Single/AoE ротацию\nПоддерживаются: raid1-40, party1-2, player, arena1-3\nТОЛЬКО ОДИН ЮНИТ ЗА ОДНО СООБЩЕНИЕ!\n\nВаши напарники могут использовать макрос также, но осторожно, они должны быть лояльны к этому!\nНЕ ДАВАЙТЕ МАКРОС НЕЗНАКОМЦАМ И ЛЮДЯМ НЕ В ТЕМЕ!",
+				MACROTOOLTIP = "Это то, что должно посылаться в чат группы для срабатывания назначенного действия по заданному ключу\nЧтобы адресовать действие к конкретному юниту допишите их в макрос или оставьте как есть для назначения в Single/AoE ротацию\nПоддерживаются: raid1-40, party1-4, player, arena1-5\nТОЛЬКО ОДИН ЮНИТ ЗА ОДНО СООБЩЕНИЕ!\n\nВаши напарники могут использовать макрос также, но осторожно, они должны быть лояльны к этому!\nНЕ ДАВАЙТЕ МАКРОС НЕЗНАКОМЦАМ И ЛЮДЯМ НЕ В ТЕМЕ!",
 				KEY = "Ключ",
 				KEYERROR = "Вы не указали ключ!",
 				KEYERRORNOEXIST = "ключ не существует!",
@@ -1704,7 +1704,7 @@ local Localization = {
 				DISABLERETOGGLE = "Warteschlange entfernen",
 				DISABLERETOGGLETOOLTIP = "Verhindert durch wiederholtes Löschen von Nachrichten aus dem Warteschlangensystem\nE.g. Mögliches Spam-Makro, ohne entfernt zu werden\n\nRechtsklick: Makro erstellen",
 				MACRO = "Macro für deine Gruppe:",
-				MACROTOOLTIP = "Dies sollte an den Gruppenchat gesendet werden, um die zugewiesene Aktion auf der angegebenen Taste auszulösen.\nUm die Aktion an eine bestimmte Einheit zu richten, fügen Sie sie dem Makro hinzu oder lassen Sie sie unverändert, wie sie für den Termin in der Einzel- / AoE-Rotation vorgesehen ist.\nUnterstützt : raid1-40, party1-2, player, arena1-3\nNUR EINE EINHEIT FÜR EINE NACHRICHT!\n\nIhre Gefährten können auch Makros verwenden, aber seien Sie vorsichtig, sie müssen dem treu bleiben!\nLASSEN SIE DAS NICHT MAKRO ZU UNIMINANZEN UND MENSCHEN NICHT IM THEMA!",
+				MACROTOOLTIP = "Dies sollte an den Gruppenchat gesendet werden, um die zugewiesene Aktion auf der angegebenen Taste auszulösen.\nUm die Aktion an eine bestimmte Einheit zu richten, fügen Sie sie dem Makro hinzu oder lassen Sie sie unverändert, wie sie für den Termin in der Einzel- / AoE-Rotation vorgesehen ist.\nUnterstützt : raid1-40, party1-4, player, arena1-5\nNUR EINE EINHEIT FÜR EINE NACHRICHT!\n\nIhre Gefährten können auch Makros verwenden, aber seien Sie vorsichtig, sie müssen dem treu bleiben!\nLASSEN SIE DAS NICHT MAKRO ZU UNIMINANZEN UND MENSCHEN NICHT IM THEMA!",
 				KEY = "Taste",
 				KEYERROR = "Du hast keine Taste ausgewählt!",
 				KEYERRORNOEXIST = "Taste existiert nicht!",
@@ -2306,7 +2306,7 @@ local Localization = {
 				DISABLERETOGGLE = "Block queue remove",
 				DISABLERETOGGLETOOLTIP = "Préviens la répétition de retrait de message de la file d'attente\nE.g. Possible de spam la macro sans que le message soit retirer\n\nClique droit : Créer la macro",
 				MACRO = "Macro pour votre groupe:",
-				MACROTOOLTIP = "C’est ce qui doit être envoyé au groupe de discussion pour déclencher l’action assignée sur le mot clé spécifié\nPour adresser l'action à une unité spécifique, ajoutez-les à la macro ou laissez-la telle quelle pour l'affecter à la rotation Single/AoE.\nPris en charge: raid1-40, party1-2, player, arena1-3\nUNE SEULE UNITÉ POUR UN MESSAGE!\n\nVos compagnons peuvent aussi utiliser des macros, mais attention, ils doivent être fidèles à cela!\nNE PAS LAISSER LA MACRO AUX GENS N'UTILISANT PAS CE GENRE DE PROGRAMME (RISQUE DE REPORT)!",
+				MACROTOOLTIP = "C’est ce qui doit être envoyé au groupe de discussion pour déclencher l’action assignée sur le mot clé spécifié\nPour adresser l'action à une unité spécifique, ajoutez-les à la macro ou laissez-la telle quelle pour l'affecter à la rotation Single/AoE.\nPris en charge: raid1-40, party1-4, player, arena1-5\nUNE SEULE UNITÉ POUR UN MESSAGE!\n\nVos compagnons peuvent aussi utiliser des macros, mais attention, ils doivent être fidèles à cela!\nNE PAS LAISSER LA MACRO AUX GENS N'UTILISANT PAS CE GENRE DE PROGRAMME (RISQUE DE REPORT)!",
 				KEY = "Mot clef",
 				KEYERROR = "Vous n'avez pas spécifié de mot clef!",
 				KEYERRORNOEXIST = "Le mot clef n'existe pas!",
@@ -2905,7 +2905,7 @@ local Localization = {
 				DISABLERETOGGLE = "Blocca Coda Rimuovi",
 				DISABLERETOGGLETOOLTIP = "Previeni l'eliminazione di un incantesimo dalla coda con un messaggio ripetuto\nEsempio, consente di inviare una macro spam senza rischiare eliminazioni non volute\n\nTastodestro: Crea macro",
 				MACRO = "Macro per il tuo gruppo:",
-				MACROTOOLTIP = "Questo è ciò che dovrebbe alla chat di gruppo per attivare l'azione assegnata ad una chiave specifica\nPer indirizzare un'azione a una unitá specifica, aggiungerlo alla macro o lasciala così com'è per l'utilizzo in rotazione singola/AoE\nSupportati: raid1-40, party1-2, giocatore, arena1-3\nSOLO UN'UNITÀ PER MESSAGGIO!\n\nI tuoi compagni possono usare anche loro macro, ma fai attenzione, devono essere macro allineate!",
+				MACROTOOLTIP = "Questo è ciò che dovrebbe alla chat di gruppo per attivare l'azione assegnata ad una chiave specifica\nPer indirizzare un'azione a una unitá specifica, aggiungerlo alla macro o lasciala così com'è per l'utilizzo in rotazione singola/AoE\nSupportati: raid1-40, party1-4, player, arena1-5\nSOLO UN'UNITÀ PER MESSAGGIO!\n\nI tuoi compagni possono usare anche loro macro, ma fai attenzione, devono essere macro allineate!",
 				KEY = "Chiave",
 				KEYERROR = "Non hai specificato una chiave!",
 				KEYERRORNOEXIST = "la chiave non esite!",
@@ -2919,7 +2919,7 @@ local Localization = {
 				INPUT = "Inserire una frase da usare come messaggio di sistema",
 				INPUTTITLE = "Frase",
 				INPUTERROR = "Non hai inserito una frase!",
-				INPUTTOOLTIP = "La frase verrà attivata in corrispondenza ai riscontri nella chat di gruppo(/party)\nNon é sensibile alle maiuscole\nIdentifica pattern, ciò significa che una frase scritta in chat con la combinazione delle parole raid, party, arena, party o giocatore\nattiva l'azione nel meta slot desiderato\nNon hai bisogno di impostare i pattern elencati, sono usati on top alla macro\nIf non trova nessun pattern, allora verra usato lo slot per rotazione Singola e ad area",				
+				INPUTTOOLTIP = "La frase verrà attivata in corrispondenza ai riscontri nella chat di gruppo(/party)\nNon é sensibile alle maiuscole\nIdentifica pattern, ciò significa che una frase scritta in chat con la combinazione delle parole raid, party, arena, party, player\nattiva l'azione nel meta slot desiderato\nNon hai bisogno di impostare i pattern elencati, sono usati on top alla macro\nIf non trova nessun pattern, allora verra usato lo slot per rotazione Singola e ad area",				
 			},
 			[8] = { -- this tab was translated by using google translate, if some one will wish to fix something let me know 
 				HEADBUTTON = "Sistema di guarigione",
@@ -3506,7 +3506,7 @@ local Localization = {
 				DISABLERETOGGLE = "Bloquear borrar cola",
 				DISABLERETOGGLETOOLTIP = "Prevenir la repetición de mensajes borrados de la cola del sistema\nE.j. Posible spam de macro sin ser removida\n\nClickDerecho: Crear macro",
 				MACRO = "Macro para tu grupo:",
-				MACROTOOLTIP = "Esto es lo que debe ser enviado al chat de grupo para desencadenar la acción asignada en la tecla específica\nPara direccionar la acción específica de la unidad, añádelos al macro o déjalo tal como está en la rotación Single/AoE\nSoportado: raid1-40, party1-2, player, arena1-3\nSOLO UNA UNIDAD POR MENSAJE!\n\nTus compañeros pueden usar macros también, pero ten cuidado, deben ser leales a esto!\n NO DES ESTA MACRO A LA GENTE QUE NO LE PUEDA GUSTAR QUE USES BOT!",
+				MACROTOOLTIP = "Esto es lo que debe ser enviado al chat de grupo para desencadenar la acción asignada en la tecla específica\nPara direccionar la acción específica de la unidad, añádelos al macro o déjalo tal como está en la rotación Single/AoE\nSoportado: raid1-40, party1-4, player, arena1-5\nSOLO UNA UNIDAD POR MENSAJE!\n\nTus compañeros pueden usar macros también, pero ten cuidado, deben ser leales a esto!\n NO DES ESTA MACRO A LA GENTE QUE NO LE PUEDA GUSTAR QUE USES BOT!",
 				KEY = "Tecla",
 				KEYERROR = "No has especificado una tecla!",
 				KEYERRORNOEXIST = "La tecla no existe!",
@@ -3520,7 +3520,7 @@ local Localization = {
 				INPUT = "Escribe una frase para el sistema de mensajes",
 				INPUTTITLE = "Frase",
 				INPUTERROR = "No has escrito una frase!",
-				INPUTTOOLTIP = "La frase aparecerá en cualquier coincidencia del chat de grupo (/party)\nNo se distingue entre mayúsculas y minúsculas\nContiene patrones, significa que la frase escrita por alguien con la combinación de palabras de raid, party, arena, party o player\nse adapta la acción a la meta slot deseada\nNo necesitas establecer los patrones listados aquí, se utilizan como un añadido a la macro\nSi el patrón no es encontrado, los espacios para las rotaciones Single y AoE serán usadas",				
+				INPUTTOOLTIP = "La frase aparecerá en cualquier coincidencia del chat de grupo (/party)\nNo se distingue entre mayúsculas y minúsculas\nContiene patrones, significa que la frase escrita por alguien con la combinación de palabras de raid, party, arena, party, player\nse adapta la acción a la meta slot deseada\nNo necesitas establecer los patrones listados aquí, se utilizan como un añadido a la macro\nSi el patrón no es encontrado, los espacios para las rotaciones Single y AoE serán usadas",				
 			},
 			[8] = {
 				HEADBUTTON = "Sistema de Cura",
@@ -4113,7 +4113,7 @@ local Localization = {
 				DISABLERETOGGLE = "Bloquear remover fila",
 				DISABLERETOGGLETOOLTIP = "Prevenido devido remoções repetidas de mensagens do sistema de filas\nEx.: Possível macro de spam não sendo removido\n\nRightClick: Criar macro",
 				MACRO = "Macro para seu grupo:",
-				MACROTOOLTIP = "Isso é o que deve ser enviado para o chat de grupo para ativar a ação atribuida na tecla especificada\nPara atribuir a ação a uma unidade especifica, adicione as unidades para o macro ou deixe como está para a rotação de Alvo único/AoE\nSuportados: raid1-40, party1-2, player, arena1-3\nAPENAS UMA UNIDADE POR MENSAGEM!\n\nSeus companheiros também podem usar macros, mas tome cuidado, eles devem ser leais a isto!\nNÃO LIBERE A MACRO PARA PESSOAS QUE NÃO ESTÃO NO TEMA!",
+				MACROTOOLTIP = "Isso é o que deve ser enviado para o chat de grupo para ativar a ação atribuida na tecla especificada\nPara atribuir a ação a uma unidade especifica, adicione as unidades para o macro ou deixe como está para a rotação de Alvo único/AoE\nSuportados: raid1-40, party1-4, player, arena1-5\nAPENAS UMA UNIDADE POR MENSAGEM!\n\nSeus companheiros também podem usar macros, mas tome cuidado, eles devem ser leais a isto!\nNÃO LIBERE A MACRO PARA PESSOAS QUE NÃO ESTÃO NO TEMA!",
 				KEY = "Chave",
 				KEYERROR = "Você não especificou uma chave!",
 				KEYERRORNOEXIST = "Chave não existe!",
@@ -4127,7 +4127,7 @@ local Localization = {
 				INPUT = "Digite uma frase para mensagem do sistema",
 				INPUTTITLE = "Frase",
 				INPUTERROR = "Você não forneceu uma frase!",
-				INPUTTOOLTIP = "A frase será ativada em qualquer palavra no chat de grupo (/party) que está de acordo com a condição\nNão é case-sensitive\nContém padrões, isso significa que a frase escrita por alguém com a combinação das palavras raid, party, arena, ou player\nadapta a action para o dado slot\nVocê não precisa setar os padrões aqui, elas são usadas como adição ao macro\nSe o padrão não for encontrado, então os slots para rotações single e AoE serão utilizados",				
+				INPUTTOOLTIP = "A frase será ativada em qualquer palavra no chat de grupo (/party) que está de acordo com a condição\nNão é case-sensitive\nContém padrões, isso significa que a frase escrita por alguém com a combinação das palavras raid, party, arena, player\nadapta a action para o dado slot\nVocê não precisa setar os padrões aqui, elas são usadas como adição ao macro\nSe o padrão não for encontrado, então os slots para rotações single e AoE serão utilizados",				
 			},
 			[8] = { 
 				HEADBUTTON = "Sistema de Cura",
@@ -4639,7 +4639,23 @@ local Factory = {
 		DisableRotationModes = false,
 		DisableSounds = true,
 		DisableAddonsCheck = false,
-		HideOnScreenshot = true,		
+		HideOnScreenshot = true,	
+		CVars = {
+			[1] = true, 	-- "Contrast"
+			[2] = true, 	-- "Brightness"
+			[3] = true, 	-- "Gamma"
+			[4] = true, 	-- "colorblindsimulator"
+			[5] = true, 	-- "colorblindWeaknessFactor"
+			[6] = true, 	-- "SpellQueueWindow"
+			[7] = true, 	-- "doNotFlashLowHealthWarning"
+			[8] = true, 	-- "nameplateMaxDistance"
+			[9] = true, 	-- "nameplateNotSelectedAlpha"
+			[10] = true, 	-- "nameplateOccludedAlphaMult"
+			[11] = true, 	-- "breakUpLargeNumbers"
+			[12] = true, 	-- "screenshotQuality"
+			[13] = true, 	-- "nameplateShowEnemies"
+			[14] = true, 	-- "autoSelfCast"
+		},
 		ColorPickerUse = false,
 		ColorPickerElement = "backdrop",
 		ColorPickerOption = "panel",
@@ -9499,7 +9515,7 @@ local ScreenshotHider = {
 			self:Reset()
 		end 
 	end,	
-}
+}; Action.ScreenshotHider = ScreenshotHider
 
 -- [1] PlaySound 
 function Action.PlaySound(sound)
@@ -12561,7 +12577,7 @@ function Action.ToggleMainUI()
 			Color:SetupStates()
 			Color:SetupPicker()						
 
-			local PauseChecksPanel = StdUi:PanelWithTitle(anchor, tab.frame:GetWidth() - 30, 340, L["TAB"][tabName]["PAUSECHECKS"])
+			local PauseChecksPanel = StdUi:PanelWithTitle(anchor, tab.frame:GetWidth() - 30, 390, L["TAB"][tabName]["PAUSECHECKS"])
 			PauseChecksPanel.titlePanel.label:SetFontSize(14)
 			StdUi:EasyLayout(PauseChecksPanel, { padding = { top = 10 } })	
 			
@@ -12588,81 +12604,139 @@ function Action.ToggleMainUI()
 					end 				
 				end 				
 			end				
-			AntiFakePauses:RegisterForClicks("LeftButtonUp")
-			AntiFakePauses:SetScript("OnClick", AntiFakePauses.ToggleOptions) 
+			AntiFakePauses:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			AntiFakePauses:SetScript("OnClick", function(self, button, down)
+				if button == "LeftButton" then 
+					self:ToggleOptions()
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["ANTIFAKEPAUSES"], [[/run Action.SetToggle({]] .. tabName .. [[, "AntiFakePauses", "]] .. L["TAB"][tabName]["ANTIFAKEPAUSES"] .. [[:"})]])	
+				end
+			end)	
 			AntiFakePauses.Identify = { Type = "Dropdown", Toggle = "AntiFakePauses" }			
 			AntiFakePauses.FontStringTitle = StdUi:Subtitle(AntiFakePauses, L["TAB"][tabName]["ANTIFAKEPAUSESSUBTITLE"])
-			StdUi:FrameTooltip(AntiFakePauses, L["TAB"][tabName]["ANTIFAKEPAUSESTT"], nil, "TOP", true)
+			StdUi:FrameTooltip(AntiFakePauses, strjoin("\n\n", L["TAB"][tabName]["ANTIFAKEPAUSESTT"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "TOP", true)
 			StdUi:GlueAbove(AntiFakePauses.FontStringTitle, AntiFakePauses)
 			AntiFakePauses.text:SetJustifyH("CENTER")			
 
+			local CheckSpellIsTargeting = StdUi:Checkbox(anchor, L["TAB"][tabName]["SPELLISTARGETING"])		
+			CheckSpellIsTargeting:SetChecked(tabDB.CheckSpellIsTargeting)
+			CheckSpellIsTargeting:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckSpellIsTargeting:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckSpellIsTargeting = not tabDB.CheckSpellIsTargeting
+					self:SetChecked(tabDB.CheckSpellIsTargeting)	
+					Action.Print(L["TAB"][tabName]["SPELLISTARGETING"] .. ": ", tabDB.CheckSpellIsTargeting)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["SPELLISTARGETING"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckSpellIsTargeting", "]] .. L["TAB"][tabName]["SPELLISTARGETING"] .. [[: "})]])	
+				end 
+			end)
+			CheckSpellIsTargeting.Identify = { Type = "Checkbox", Toggle = "CheckSpellIsTargeting" }
+			StdUi:FrameTooltip(CheckSpellIsTargeting, strjoin("\n\n", L["TAB"][tabName]["SPELLISTARGETINGTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMRIGHT", true)
+			
+			local CheckLootFrame = StdUi:Checkbox(anchor, L["TAB"][tabName]["LOOTFRAME"])
+			CheckLootFrame:SetChecked(tabDB.CheckLootFrame)
+			CheckLootFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckLootFrame:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckLootFrame = not tabDB.CheckLootFrame
+					self:SetChecked(tabDB.CheckLootFrame)	
+					Action.Print(L["TAB"][tabName]["LOOTFRAME"] .. ": ", tabDB.CheckLootFrame)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["LOOTFRAME"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckLootFrame", "]] .. L["TAB"][tabName]["LOOTFRAME"] .. [[: "})]])	
+				end 
+			end)
+			CheckLootFrame.Identify = { Type = "Checkbox", Toggle = "CheckLootFrame" }	
+			StdUi:FrameTooltip(CheckLootFrame, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMLEFT", true)			
+
 			local CheckVehicle = StdUi:Checkbox(anchor, L["TAB"][tabName]["VEHICLE"])			
 			CheckVehicle:SetChecked(tabDB.CheckVehicle)
-			function CheckVehicle:OnValueChanged(self, state, value)
-				tabDB.CheckVehicle = not tabDB.CheckVehicle		
-				Action.Print(L["TAB"][tabName]["VEHICLE"] .. ": ", tabDB.CheckVehicle)
-			end	
+			CheckVehicle:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckVehicle:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckVehicle = not tabDB.CheckVehicle
+					self:SetChecked(tabDB.CheckVehicle)	
+					Action.Print(L["TAB"][tabName]["VEHICLE"] .. ": ", tabDB.CheckVehicle)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["VEHICLE"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckVehicle", "]] .. L["TAB"][tabName]["VEHICLE"] .. [[: "})]])	
+				end 
+			end)
 			CheckVehicle.Identify = { Type = "Checkbox", Toggle = "CheckVehicle" }
-			StdUi:FrameTooltip(CheckVehicle, L["TAB"][tabName]["VEHICLETOOLTIP"], nil, "BOTTOMRIGHT", true)				
+			StdUi:FrameTooltip(CheckVehicle, strjoin("\n\n", L["TAB"][tabName]["VEHICLETOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMRIGHT", true)				
 			
 			local CheckDeadOrGhost = StdUi:Checkbox(anchor, L["TAB"][tabName]["DEADOFGHOSTPLAYER"])	
 			CheckDeadOrGhost:SetChecked(tabDB.CheckDeadOrGhost)
-			function CheckDeadOrGhost:OnValueChanged(self, state, value)
-				tabDB.CheckDeadOrGhost = not tabDB.CheckDeadOrGhost		
-				Action.Print(L["TAB"][tabName]["DEADOFGHOSTPLAYER"] .. ": ", tabDB.CheckDeadOrGhost)
-			end		
+			CheckDeadOrGhost:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckDeadOrGhost:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckDeadOrGhost = not tabDB.CheckDeadOrGhost
+					self:SetChecked(tabDB.CheckDeadOrGhost)	
+					Action.Print(L["TAB"][tabName]["DEADOFGHOSTPLAYER"] .. ": ", tabDB.CheckDeadOrGhost)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DEADOFGHOSTPLAYER"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckDeadOrGhost", "]] .. L["TAB"][tabName]["DEADOFGHOSTPLAYER"] .. [[: "})]])	
+				end 
+			end)
 			CheckDeadOrGhost.Identify = { Type = "Checkbox", Toggle = "CheckDeadOrGhost" }
+			StdUi:FrameTooltip(CheckDeadOrGhost, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMLEFT", true)
+			
+			local CheckMount = StdUi:Checkbox(anchor, L["TAB"][tabName]["MOUNT"])
+			CheckMount:SetChecked(tabDB.CheckMount)
+			CheckMount:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckMount:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckMount = not tabDB.CheckMount
+					self:SetChecked(tabDB.CheckMount)	
+					Action.Print(L["TAB"][tabName]["MOUNT"] .. ": ", tabDB.CheckMount)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["MOUNT"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckMount", "]] .. L["TAB"][tabName]["MOUNT"] .. [[: "})]])	
+				end 
+			end)
+			CheckMount.Identify = { Type = "Checkbox", Toggle = "CheckMount" }	
+			StdUi:FrameTooltip(CheckMount, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMRIGHT", true)					
 			
 			local CheckDeadOrGhostTarget = StdUi:Checkbox(anchor, L["TAB"][tabName]["DEADOFGHOSTTARGET"])
-			CheckDeadOrGhostTarget:SetChecked(tabDB.CheckDeadOrGhostTarget)
-			function CheckDeadOrGhostTarget:OnValueChanged(self, state, value)
-				tabDB.CheckDeadOrGhostTarget = not tabDB.CheckDeadOrGhostTarget
-				Action.Print(L["TAB"][tabName]["DEADOFGHOSTTARGET"] .. ": ", tabDB.CheckDeadOrGhostTarget)
-			end	
+			CheckDeadOrGhostTarget:SetChecked(tabDB.CheckDeadOrGhostTarget)			
+			CheckDeadOrGhostTarget:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckDeadOrGhostTarget:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckDeadOrGhostTarget = not tabDB.CheckDeadOrGhostTarget
+					self:SetChecked(tabDB.CheckDeadOrGhostTarget)	
+					Action.Print(L["TAB"][tabName]["DEADOFGHOSTTARGET"] .. ": ", tabDB.CheckDeadOrGhostTarget)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DEADOFGHOSTTARGET"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckDeadOrGhostTarget", "]] .. L["TAB"][tabName]["DEADOFGHOSTTARGET"] .. [[: "})]])	
+				end 
+			end)
 			CheckDeadOrGhostTarget.Identify = { Type = "Checkbox", Toggle = "CheckDeadOrGhostTarget" }
-			StdUi:FrameTooltip(CheckDeadOrGhostTarget, L["TAB"][tabName]["DEADOFGHOSTTARGETTOOLTIP"], nil, "BOTTOMLEFT", true)						
+			StdUi:FrameTooltip(CheckDeadOrGhostTarget, strjoin("\n\n", L["TAB"][tabName]["DEADOFGHOSTTARGETTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMLEFT", true)						
 
 			local CheckCombat = StdUi:Checkbox(anchor, L["TAB"][tabName]["COMBAT"])	
 			CheckCombat:SetChecked(tabDB.CheckCombat)
-			function CheckCombat:OnValueChanged(self, state, value)
-				tabDB.CheckCombat = not tabDB.CheckCombat	
-				Action.Print(L["TAB"][tabName]["COMBAT"] .. ": ", tabDB.CheckCombat)
-			end	
+			CheckCombat:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckCombat:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckCombat = not tabDB.CheckCombat
+					self:SetChecked(tabDB.CheckCombat)	
+					Action.Print(L["TAB"][tabName]["COMBAT"] .. ": ", tabDB.CheckCombat)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["COMBAT"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckCombat", "]] .. L["TAB"][tabName]["COMBAT"] .. [[: "})]])	
+				end 
+			end)
 			CheckCombat.Identify = { Type = "Checkbox", Toggle = "CheckCombat" }
-			StdUi:FrameTooltip(CheckCombat, L["TAB"][tabName]["COMBATTOOLTIP"], nil, "BOTTOMRIGHT", true)		
-
-			local CheckMount = StdUi:Checkbox(anchor, L["TAB"][tabName]["MOUNT"])
-			CheckMount:SetChecked(tabDB.CheckMount)
-			function CheckMount:OnValueChanged(self, state, value)
-				tabDB.CheckMount = not tabDB.CheckMount
-				Action.Print(L["TAB"][tabName]["MOUNT"] .. ": ", tabDB.CheckMount)
-			end	
-			CheckMount.Identify = { Type = "Checkbox", Toggle = "CheckMount" }			
-
-			local CheckSpellIsTargeting = StdUi:Checkbox(anchor, L["TAB"][tabName]["SPELLISTARGETING"])		
-			CheckSpellIsTargeting:SetChecked(tabDB.CheckSpellIsTargeting)
-			function CheckSpellIsTargeting:OnValueChanged(self, state, value)
-				tabDB.CheckSpellIsTargeting = not tabDB.CheckSpellIsTargeting
-				Action.Print(L["TAB"][tabName]["SPELLISTARGETING"] .. ": ", tabDB.CheckSpellIsTargeting)
-			end	
-			CheckSpellIsTargeting.Identify = { Type = "Checkbox", Toggle = "CheckSpellIsTargeting" }
-			StdUi:FrameTooltip(CheckSpellIsTargeting, L["TAB"][tabName]["SPELLISTARGETINGTOOLTIP"], nil, "BOTTOMRIGHT", true)	
-
-			local CheckLootFrame = StdUi:Checkbox(anchor, L["TAB"][tabName]["LOOTFRAME"])
-			CheckLootFrame:SetChecked(tabDB.CheckLootFrame)
-			function CheckLootFrame:OnValueChanged(self, state, value)
-				tabDB.CheckLootFrame = not tabDB.CheckLootFrame	
-				Action.Print(L["TAB"][tabName]["LOOTFRAME"] .. ": ", tabDB.CheckLootFrame)
-			end	
-			CheckLootFrame.Identify = { Type = "Checkbox", Toggle = "CheckLootFrame" }	
+			StdUi:FrameTooltip(CheckCombat, strjoin("\n\n", L["TAB"][tabName]["COMBATTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMRIGHT", true)			
 
 			local CheckEatingOrDrinking = StdUi:Checkbox(anchor, L["TAB"][tabName]["EATORDRINK"])
 			CheckEatingOrDrinking:SetChecked(tabDB.CheckEatingOrDrinking)
-			function CheckEatingOrDrinking:OnValueChanged(self, state, value)
-				tabDB.CheckEatingOrDrinking = not tabDB.CheckEatingOrDrinking	
-				Action.Print(L["TAB"][tabName]["EATORDRINK"] .. ": ", tabDB.CheckEatingOrDrinking)
-			end	
-			CheckEatingOrDrinking.Identify = { Type = "Checkbox", Toggle = "CheckEatingOrDrinking" }	
+			CheckEatingOrDrinking:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CheckEatingOrDrinking:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.CheckEatingOrDrinking = not tabDB.CheckEatingOrDrinking
+					self:SetChecked(tabDB.CheckEatingOrDrinking)	
+					Action.Print(L["TAB"][tabName]["EATORDRINK"] .. ": ", tabDB.CheckEatingOrDrinking)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["EATORDRINK"], [[/run Action.SetToggle({]] .. tabName .. [[, "CheckEatingOrDrinking", "]] .. L["TAB"][tabName]["EATORDRINK"] .. [[: "})]])	
+				end 
+			end)
+			CheckEatingOrDrinking.Identify = { Type = "Checkbox", Toggle = "CheckEatingOrDrinking" }
+			StdUi:FrameTooltip(CheckEatingOrDrinking, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMLEFT", true)				
 			
 			local Misc = StdUi:Header(PauseChecksPanel, L["TAB"][tabName]["MISC"])
 			Misc:SetAllPoints()			
@@ -12671,87 +12745,188 @@ function Action.ToggleMainUI()
 			
 			local DisableRotationDisplay = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEROTATIONDISPLAY"])
 			DisableRotationDisplay:SetChecked(tabDB.DisableRotationDisplay)
-			function DisableRotationDisplay:OnValueChanged(self, state, value)
-				tabDB.DisableRotationDisplay = not tabDB.DisableRotationDisplay		
-				Action.Print(L["TAB"][tabName]["DISABLEROTATIONDISPLAY"] .. ": ", tabDB.DisableRotationDisplay)
-			end				
+			DisableRotationDisplay:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableRotationDisplay:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisableRotationDisplay = not tabDB.DisableRotationDisplay
+					self:SetChecked(tabDB.DisableRotationDisplay)	
+					Action.Print(L["TAB"][tabName]["DISABLEROTATIONDISPLAY"] .. ": ", tabDB.DisableRotationDisplay)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEROTATIONDISPLAY"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableRotationDisplay", "]] .. L["TAB"][tabName]["DISABLEROTATIONDISPLAY"] .. [[: "})]])	
+				end 
+			end)
 			DisableRotationDisplay.Identify = { Type = "Checkbox", Toggle = "DisableRotationDisplay" }
-			StdUi:FrameTooltip(DisableRotationDisplay, L["TAB"][tabName]["DISABLEROTATIONDISPLAYTOOLTIP"], nil, "BOTTOMRIGHT", true)	
+			StdUi:FrameTooltip(DisableRotationDisplay, strjoin("\n\n", L["TAB"][tabName]["DISABLEROTATIONDISPLAYTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMRIGHT", true)	
 			
 			local DisableBlackBackground = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEBLACKBACKGROUND"])
-			DisableBlackBackground:SetChecked(tabDB.DisableBlackBackground)
-			function DisableBlackBackground:OnValueChanged(self, state, value)
-				tabDB.DisableBlackBackground = not tabDB.DisableBlackBackground	
-				Action.Print(L["TAB"][tabName]["DISABLEBLACKBACKGROUND"] .. ": ", tabDB.DisableBlackBackground)
-				Action.BlackBackgroundSet(not tabDB.DisableBlackBackground)
-			end				
+			DisableBlackBackground:SetChecked(tabDB.DisableBlackBackground)			
+			DisableBlackBackground:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableBlackBackground:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisableBlackBackground = not tabDB.DisableBlackBackground
+					self:SetChecked(tabDB.DisableBlackBackground)	
+					Action.Print(L["TAB"][tabName]["DISABLEBLACKBACKGROUND"] .. ": ", tabDB.DisableBlackBackground)
+					Action.BlackBackgroundSet(not tabDB.DisableBlackBackground)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEBLACKBACKGROUND"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableBlackBackground", "]] .. L["TAB"][tabName]["DISABLEBLACKBACKGROUND"] .. [[: "}); Action.BlackBackgroundSet(not Action.GetToggle(1, "DisableBlackBackground"))]])	
+				end 
+			end)
 			DisableBlackBackground.Identify = { Type = "Checkbox", Toggle = "DisableBlackBackground" }
-			StdUi:FrameTooltip(DisableBlackBackground, L["TAB"][tabName]["DISABLEBLACKBACKGROUNDTOOLTIP"], nil, "BOTTOMLEFT", true)	
+			StdUi:FrameTooltip(DisableBlackBackground, strjoin("\n\n", L["TAB"][tabName]["DISABLEBLACKBACKGROUNDTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMLEFT", true)	
 
 			local DisablePrint = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEPRINT"])
-			DisablePrint:SetChecked(tabDB.DisablePrint)
-			function DisablePrint:OnValueChanged(self, state, value)
-				tabDB.DisablePrint = not tabDB.DisablePrint		
-				Action.Print(L["TAB"][tabName]["DISABLEPRINT"] .. ": ", tabDB.DisablePrint, true)
-			end				
+			DisablePrint:SetChecked(tabDB.DisablePrint)		
+			DisablePrint:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisablePrint:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisablePrint = not tabDB.DisablePrint
+					self:SetChecked(tabDB.DisablePrint)	
+					Action.Print(L["TAB"][tabName]["DISABLEPRINT"] .. ": ", tabDB.DisablePrint)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEPRINT"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisablePrint", "]] .. L["TAB"][tabName]["DISABLEPRINT"] .. [[: "})]])	
+				end 
+			end)
 			DisablePrint.Identify = { Type = "Checkbox", Toggle = "DisablePrint" }
-			StdUi:FrameTooltip(DisablePrint, L["TAB"][tabName]["DISABLEPRINTTOOLTIP"], nil, "BOTTOMRIGHT", true)
+			StdUi:FrameTooltip(DisablePrint, strjoin("\n\n", L["TAB"][tabName]["DISABLEPRINTTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMRIGHT", true)
 
 			local DisableMinimap = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEMINIMAP"])
-			DisableMinimap:SetChecked(tabDB.DisableMinimap)
-			function DisableMinimap:OnValueChanged(self, state, value)
-				Action.ToggleMinimap()
-			end				
+			DisableMinimap:SetChecked(tabDB.DisableMinimap)	
+			DisableMinimap:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableMinimap:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 					
+					Action.ToggleMinimap()
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEMINIMAP"], [[/run Action.ToggleMinimap()]])	
+				end 
+			end)
 			DisableMinimap.Identify = { Type = "Checkbox", Toggle = "DisableMinimap" }
-			StdUi:FrameTooltip(DisableMinimap, L["TAB"][tabName]["DISABLEMINIMAPTOOLTIP"], nil, "BOTTOMLEFT", true)	
+			StdUi:FrameTooltip(DisableMinimap, strjoin("\n\n", L["TAB"][tabName]["DISABLEMINIMAPTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMLEFT", true)	
 						
 			local DisableClassPortraits = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEPORTRAITS"])
-			DisableClassPortraits:SetChecked(tabDB.DisableClassPortraits)
-			function DisableClassPortraits:OnValueChanged(self, state, value)
-				tabDB.DisableClassPortraits = not tabDB.DisableClassPortraits		
-				Action.Print(L["TAB"][tabName]["DISABLEPORTRAITS"] .. ": ", tabDB.DisableClassPortraits)
-			end				
+			DisableClassPortraits:SetChecked(tabDB.DisableClassPortraits)		
+			DisableClassPortraits:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableClassPortraits:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisableClassPortraits = not tabDB.DisableClassPortraits
+					self:SetChecked(tabDB.DisableClassPortraits)	
+					Action.Print(L["TAB"][tabName]["DISABLEPORTRAITS"] .. ": ", tabDB.DisableClassPortraits)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEPORTRAITS"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableClassPortraits", "]] .. L["TAB"][tabName]["DISABLEPORTRAITS"] .. [[: "})]])	
+				end 
+			end)
 			DisableClassPortraits.Identify = { Type = "Checkbox", Toggle = "DisableClassPortraits" }	
+			StdUi:FrameTooltip(DisableClassPortraits, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMRIGHT", true)	
 
 			local DisableRotationModes = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEROTATIONMODES"])
-			DisableRotationModes:SetChecked(tabDB.DisableRotationModes)
-			function DisableRotationModes:OnValueChanged(self, state, value)
-				tabDB.DisableRotationModes = not tabDB.DisableRotationModes		
-				Action.Print(L["TAB"][tabName]["DISABLEROTATIONMODES"] .. ": ", tabDB.DisableRotationModes)
-			end				
+			DisableRotationModes:SetChecked(tabDB.DisableRotationModes)		
+			DisableRotationModes:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableRotationModes:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisableRotationModes = not tabDB.DisableRotationModes
+					self:SetChecked(tabDB.DisableRotationModes)	
+					Action.Print(L["TAB"][tabName]["DISABLEROTATIONMODES"] .. ": ", tabDB.DisableRotationModes)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEROTATIONMODES"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableRotationModes", "]] .. L["TAB"][tabName]["DISABLEROTATIONMODES"] .. [[: "})]])	
+				end 
+			end)
 			DisableRotationModes.Identify = { Type = "Checkbox", Toggle = "DisableRotationModes" }	
+			StdUi:FrameTooltip(DisableRotationModes, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMLEFT", true)	
 			
 			local DisableSounds = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLESOUNDS"])
-			DisableSounds:SetChecked(tabDB.DisableSounds)
-			function DisableSounds:OnValueChanged(self, state, value)
-				tabDB.DisableSounds = not tabDB.DisableSounds		
-				Action.Print(L["TAB"][tabName]["DISABLESOUNDS"] .. ": ", tabDB.DisableSounds)
-			end				
+			DisableSounds:SetChecked(tabDB.DisableSounds)		
+			DisableSounds:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableSounds:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisableSounds = not tabDB.DisableSounds
+					self:SetChecked(tabDB.DisableSounds)	
+					Action.Print(L["TAB"][tabName]["DISABLESOUNDS"] .. ": ", tabDB.DisableSounds)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLESOUNDS"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableSounds", "]] .. L["TAB"][tabName]["DISABLESOUNDS"] .. [[: "})]])	
+				end 
+			end)
 			DisableSounds.Identify = { Type = "Checkbox", Toggle = "DisableSounds" }
+			StdUi:FrameTooltip(DisableSounds, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMRIGHT", true)	
 
 			local HideOnScreenshot = StdUi:Checkbox(anchor, L["TAB"][tabName]["HIDEONSCREENSHOT"])
-			HideOnScreenshot:SetChecked(tabDB.HideOnScreenshot)
-			function HideOnScreenshot:OnValueChanged(self, state, value)
-				tabDB.HideOnScreenshot = not tabDB.HideOnScreenshot
-				ScreenshotHider:Initialize()
-			end				
+			HideOnScreenshot:SetChecked(tabDB.HideOnScreenshot)	
+			HideOnScreenshot:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			HideOnScreenshot:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.HideOnScreenshot = not tabDB.HideOnScreenshot
+					self:SetChecked(tabDB.HideOnScreenshot)	
+					Action.Print(L["TAB"][tabName]["HIDEONSCREENSHOT"] .. ": ", tabDB.HideOnScreenshot)
+					ScreenshotHider:Initialize()
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["HIDEONSCREENSHOT"], [[/run Action.SetToggle({]] .. tabName .. [[, "HideOnScreenshot", "]] .. L["TAB"][tabName]["HIDEONSCREENSHOT"] .. [[: "}); Action.ScreenshotHider:Initialize()]])	
+				end 
+			end)
 			HideOnScreenshot.Identify = { Type = "Checkbox", Toggle = "HideOnScreenshot" }
-			StdUi:FrameTooltip(HideOnScreenshot, L["TAB"][tabName]["HIDEONSCREENSHOTTOOLTIP"], nil, "BOTTOMLEFT", true)	
+			StdUi:FrameTooltip(HideOnScreenshot, strjoin("\n\n", L["TAB"][tabName]["HIDEONSCREENSHOTTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMLEFT", true)	
 			
 			local DisableAddonsCheck = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEADDONSCHECK"])
-			DisableAddonsCheck:SetChecked(tabDB.DisableAddonsCheck)
-			function DisableAddonsCheck:OnValueChanged(self, state, value)
-				tabDB.DisableAddonsCheck = not tabDB.DisableAddonsCheck		
-				Action.Print(L["TAB"][tabName]["DISABLEADDONSCHECK"] .. ": ", tabDB.DisableAddonsCheck)
+			DisableAddonsCheck:SetChecked(tabDB.DisableAddonsCheck)	
+			DisableAddonsCheck:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableAddonsCheck:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisableAddonsCheck = not tabDB.DisableAddonsCheck
+					self:SetChecked(tabDB.DisableAddonsCheck)	
+					Action.Print(L["TAB"][tabName]["DISABLEADDONSCHECK"] .. ": ", tabDB.DisableAddonsCheck)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEADDONSCHECK"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableAddonsCheck", "]] .. L["TAB"][tabName]["DISABLEADDONSCHECK"] .. [[: "})]])	
+				end 
+			end)			
+			DisableAddonsCheck.Identify = { Type = "Checkbox", Toggle = "DisableAddonsCheck" }		
+			StdUi:FrameTooltip(DisableAddonsCheck, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMRIGHT", true)		
+			
+			local CVarsItems = {
+				{ text = "Contrast", 							value = 1 },
+				{ text = "Brightness", 							value = 2 },
+				{ text = "Gamma", 								value = 3 },
+				{ text = "colorblindsimulator", 				value = 4 },
+				{ text = "colorblindWeaknessFactor", 			value = 5 },
+				{ text = "SpellQueueWindow", 					value = 6 },
+				{ text = "doNotFlashLowHealthWarning", 			value = 7 },
+				{ text = "nameplateMaxDistance", 				value = 8 },
+				{ text = "nameplateNotSelectedAlpha", 			value = 9 },
+				{ text = "nameplateOccludedAlphaMult", 			value = 10 },
+				{ text = "breakUpLargeNumbers", 				value = 11 },
+				{ text = "screenshotQuality", 					value = 12 },
+				{ text = "nameplateShowEnemies", 				value = 13 },
+				{ text = "autoSelfCast", 						value = 14 },
+			}
+			local CVars = StdUi:Dropdown(anchor, StdUi:GetWidthByColumn(anchor, 6), themeHeight, CVarsItems, nil, true, true)
+			CVars:SetPlaceholder(" -- CVars -- ") 	
+			for i, v in ipairs(CVars.optsFrame.scrollChild.items) do 
+				v:SetChecked(tabDB.CVars[i])
+			end			
+			CVars.OnValueChanged = function(self, value)			
+				for i, v in ipairs(self.optsFrame.scrollChild.items) do 					
+					if tabDB.CVars[i] ~= v:GetChecked() then
+						tabDB.CVars[i] = v:GetChecked()
+						Action.Print("CVar - " .. CVarsItems[i].text .. ": ", tabDB.CVars[i])
+					end 				
+				end 				
 			end				
-			DisableAddonsCheck.Identify = { Type = "Checkbox", Toggle = "DisableAddonsCheck" }			
+			CVars:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			CVars:SetScript("OnClick", function(self, button, down)
+				if button == "LeftButton" then 
+					self:ToggleOptions()
+				elseif button == "RightButton" then 
+					Action.CraftMacro("CVars", [[/run Action.SetToggle({]] .. tabName .. [[, "CVars", "CVars:"})]])	
+				end
+			end)	
+			CVars.Identify = { Type = "Dropdown", Toggle = "CVars" }			
+			CVars.FontStringTitle = StdUi:Subtitle(CVars, "CVars")
+			StdUi:FrameTooltip(CVars, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "TOP", true)
+			StdUi:GlueAbove(CVars.FontStringTitle, CVars)
+			CVars.text:SetJustifyH("CENTER")				
 			
 			local GlobalOverlay = anchor:AddRow()					
 			GlobalOverlay:AddElement(PvEPvPToggle, { column = 5.35 })			
 			GlobalOverlay:AddElement(StdUi:LayoutSpace(anchor), { column = 0.65 })			
 			GlobalOverlay:AddElement(InterfaceLanguage, { column = 6 })			
 			anchor:AddRow({ margin = { top = 10 } }):AddElements(ReTarget, Trinkets, { column = "even" })			
-			anchor:AddRow():AddElements(ReFocus, Burst, { column = "even" })			
+			anchor:AddRow():AddElements(ReFocus or StdUi:LayoutSpace(anchor), Burst, { column = "even" })			
 			local SpecialRow = anchor:AddRow()
 			SpecialRow:AddElement(FPS, { column = 6 })
 			SpecialRow:AddElement(HealthStone, { column = 6 })
@@ -12779,6 +12954,7 @@ function Action.ToggleMainUI()
 			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableClassPortraits, DisableRotationModes, { column = "even" })		
 			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableSounds, HideOnScreenshot, { column = "even" })	
 			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableAddonsCheck, StdUi:LayoutSpace(anchor), { column = "even" })	
+			PauseChecksPanel:AddRow({ margin = { top = 0 } }):AddElement(CVars, { column = 12 })
 			PauseChecksPanel:DoLayout()		
 			-- Add empty space for scrollframe after all elements 
 			anchor:AddRow():AddElement(StdUi:LayoutSpace(anchor))	
@@ -13332,7 +13508,7 @@ function Action.ToggleMainUI()
 			ScrollTable:RegisterEvents(nil, { OnClick = Scroll.OnClickHeader })
             ScrollTable:EnableSelection(true)			
 			ScrollTable.OnPairs			= function(self, k, v, isAutoHidden)
-				if type(v) == "table" and not v.Hidden and v.Type and v.ID and v.Desc then  
+				if type(v) == "table" and not v.Hidden and not v.HiddenUI and v.Type and v.ID and v.Desc then  
 					local Enabled = v:IsBlocked() and "False" or "True"
 					local isShown = true 
 					
@@ -13912,8 +14088,8 @@ function Action.ToggleMainUI()
 				{ text = "[MainPvP] @target" .. (Action.IamHealer and "||targettarget" or ""), 	value = "MainPvP" 				},	
 				{ text = "[MousePvE] @mouseover", 												value = "MousePvE" 				},	
 				{ text = "[MousePvP] @mouseover", 												value = "MousePvP" 				},
-				{ text = "[Heal] @arena1-3", 													value = "Heal" 					},				
-				{ text = "[PvP] @arena1-3", 													value = "PvP" 					},
+				{ text = "[Heal] @arena1-5/ME:40", 												value = "Heal" 					},				
+				{ text = "[PvP] @arena1-5/ME:40", 												value = "PvP" 					},
 			}, "Main" .. (Action.IsInPvP and "PvP" or "PvE"))	
 			Category.OnValueChanged = TabUpdate
 			Category.text:SetJustifyH("CENTER")	

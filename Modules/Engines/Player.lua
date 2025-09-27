@@ -21,7 +21,6 @@ local SwingTimers 				= TMW.COMMON.SwingTimerMonitor.SwingTimers
 local A   						= _G.Action	
 local CONST 					= A.Const
 local Listener					= A.Listener
-local InstanceInfo				= A.InstanceInfo
 
 local TeamCache					= A.TeamCache
 local TeamCacheFriendly 		= TeamCache.Friendly
@@ -969,8 +968,8 @@ end
 
 function Player:HasTier(tier, count)
 	-- @return boolean 
-	-- Set Bonuses are disabled in Challenge Mode (Diff = 8) and in MoP: Proving Grounds (InstanceID = 1148, ZoneID = 480)
-	return self:GetTier(tier) >= count and InstanceInfo.difficultyID ~= 8 and A.ZoneID ~= 480 
+	-- Set Bonuses are disabled in MoP: Proving Grounds (InstanceID = 1148, ZoneID = 480)
+	return self:GetTier(tier) >= count and A.ZoneID ~= 480 
 end 
 
 -- Bags 

@@ -192,6 +192,7 @@ local message				= _G.message
 local hooksecurefunc		= _G.hooksecurefunc 
 local strfind				= _G.strfind	  
 local strmatch				= _G.strmatch
+local strjoin				= _G.strjoin
 local UIParent				= _G.UIParent	
 local C_UI					= _G.C_UI  
 local C_CVar				= _G.C_CVar
@@ -202,11 +203,10 @@ local 	 CreateFrame, 	 GetCVar, 	 				   SetCVar =
 local 	 GetScreenResolutions, 	  GetPhysicalScreenSize, 	GetScreenDPIScale =
 	  _G.GetScreenResolutions, _G.GetPhysicalScreenSize, _G.GetScreenDPIScale
 	  
-local 	 GetNumClasses,    GetClassInfo,  	GetNumSpecializationsForClassID, 	GetSpecializationInfoForClassID, 	GetArenaOpponentSpec, 	 GetBattlefieldScore, 	  GetSpellTexture,    CombatLogGetCurrentEventInfo =
-	  _G.GetNumClasses, _G.GetClassInfo, _G.GetNumSpecializationsForClassID, _G.GetSpecializationInfoForClassID, _G.GetArenaOpponentSpec, _G.GetBattlefieldScore, TMW.GetSpellTexture, _G.CombatLogGetCurrentEventInfo
-
-local 	 UnitName, 	  UnitGUID =
-	  _G.UnitName, _G.UnitGUID
+local 	GetSpellTexture,    CombatLogGetCurrentEventInfo =
+	TMW.GetSpellTexture, _G.CombatLogGetCurrentEventInfo	  
+	  
+local UnitGUID = _G.UnitGUID
 	
 -------------------------------------------------------------------------------
 -- DataBase
@@ -438,44 +438,14 @@ TMW:RegisterDatabaseDefaults{
 }
 
 -------------------------------------------------------------------------------
--- CNDT: TalentMap  
+-- TalentMap  
 -------------------------------------------------------------------------------
-if BuildToC >= 20000 then 
-	-- Retail 
-	if BuildToC >= 100000 then 
-		-- DF+
-		Listener:Add("ACTION_EVENT_UTILS_TALENTS", "TRAIT_CONFIG_LIST_UPDATED", function()
-			CNDT:RegisterEvent("PLAYER_TALENT_UPDATE")
-			CNDT:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "PLAYER_TALENT_UPDATE")
-			-- DF: Registers events for Traits
-			CNDT:RegisterEvent("TRAIT_CONFIG_UPDATED", "PLAYER_TALENT_UPDATE")
-			local C_TimerAfter = _G.C_Timer.After
-			CNDT:RegisterEvent("TRAIT_TREE_CHANGED", function() 
-				C_TimerAfter(0.5, function()
-					CNDT:PLAYER_TALENT_UPDATE()
-				end)
-			end)
-			-- SL: Registers events for Torghast
-			CNDT:RegisterEvent("ANIMA_DIVERSION_TALENT_UPDATED", "PLAYER_TALENT_UPDATE")			
-			CNDT:PLAYER_TALENT_UPDATE()
-			Listener:Remove("ACTION_EVENT_UTILS_TALENTS", "TRAIT_CONFIG_LIST_UPDATED")
-		end)
-	else 
-		-- TBC -> SL
-		CNDT:RegisterEvent("PLAYER_TALENT_UPDATE")
-		CNDT:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "PLAYER_TALENT_UPDATE")
-		-- SL: Registers events for Torghast 
-		if BuildToC >= 90000 then 
-			CNDT:RegisterEvent("ANIMA_DIVERSION_TALENT_UPDATED", "PLAYER_TALENT_UPDATE")	
-		end 		
-		CNDT:PLAYER_TALENT_UPDATE()
-	end 	
-else
-	-- Classic 
-	local TalentMap = {}; A.TalentMap = TalentMap
-	local GetNumTalentTabs, GetNumTalents, GetTalentInfo = _G.GetNumTalentTabs, _G.GetNumTalents, _G.GetTalentInfo
+if BuildToC < 50500 then 
+	-- Classic - Cataclysm
+	local TalentMap 										= {}; A.TalentMap = TalentMap
+	local GetNumTalentTabs, GetNumTalents, GetTalentInfo 	= _G.GetNumTalentTabs, _G.GetNumTalents, _G.GetTalentInfo
 	local function TalentMapUpdate()
-		wipe(A.TalentMap)
+		wipe(TalentMap)
 		for tab = 1, GetNumTalentTabs() do
 			for talent = 1, GetNumTalents(tab) do
 				local name, _, _, _, rank = GetTalentInfo(tab, talent)
@@ -487,77 +457,164 @@ else
 		TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")
 	end
 
-	Listener:Add("ACTION_EVENT_TOOLS", "PLAYER_ENTERING_WORLD", 	TalentMapUpdate)
-	Listener:Add("ACTION_EVENT_TOOLS", "CHARACTER_POINTS_CHANGED", 	TalentMapUpdate)
-end 
-
--------------------------------------------------------------------------------
--- CNDT: UnitSpecs  
--------------------------------------------------------------------------------
--- Note: This code is modified for Action Core 
-specNameToRole, Env.ModifiedUnitSpecs = {}, {}
-
-for i = 1, GetNumClasses() do
-	local _, class, classID = GetClassInfo(i)
-	specNameToRole[class] = {}
-
-	for j = 1, GetNumSpecializationsForClassID(classID) do
-		local specID, spec, desc, icon = GetSpecializationInfoForClassID(classID, j)
-		specNameToRole[class][spec] = specID
-	end
-end
-
-local SPECS = CNDT:GetModule("Specs")
-function SPECS:UpdateUnitSpecs()
-	if Env.UnitSpecs and next(Env.UnitSpecs) then
-		wipe(Env.UnitSpecs)	
-		TMW:Fire("TMW_UNITSPEC_UPDATE")
-	end
+	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD", 			TalentMapUpdate)
+	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "ACTIVE_TALENT_GROUP_CHANGED", 	TalentMapUpdate)	
+	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "CHARACTER_POINTS_CHANGED", 		TalentMapUpdate)
+elseif BuildToC < 100000 then
+	-- MOP - Shadowlands
+	local TalentMap 					= {}; A.TalentMap = TalentMap
+	local C_SpecializationInfo			= _G.C_SpecializationInfo
+	local GetTalentInfo 				= C_SpecializationInfo and C_SpecializationInfo.GetTalentInfo or _G.GetTalentInfo
+	local GetPvpTalentInfoByID 			= _G.GetPvpTalentInfoByID
+	local GetAllSelectedPvpTalentIDs 	= C_SpecializationInfo and C_SpecializationInfo.GetAllSelectedPvpTalentIDs	
 	
-	if next(Env.ModifiedUnitSpecs) then 
-		wipe(Env.ModifiedUnitSpecs)
-		TMW:Fire("TMW_UNITSPEC_UPDATE")
-	end
-
-	if A.Zone == "arena" then
-		for i = 1, TeamCacheEnemy.MaxSize do 
-			local unit = TeamCacheEnemyIndexToPLAYERs[i]
-
-			if unit then 
-				local name, server = UnitName(unit)
-				if name and name ~= CONST.UNKNOWN then
-					local specID = GetArenaOpponentSpec(i)
-					name = name .. (server and "-" .. server or "")
-					if Env.UnitSpecs then 
-						Env.UnitSpecs[name] = specID
-					end 
-					Env.ModifiedUnitSpecs[name] = specID				
+	local MAX_NUM_TALENT_TIERS 			= _G.MAX_NUM_TALENT_TIERS
+	local NUM_TALENT_COLUMNS 			= _G.NUM_TALENT_COLUMNS
+	
+	local talentInfoQuery = {}
+	local function TalentMapUpdate()
+		wipe(TalentMap)
+		wipe(talentInfoQuery)
+		
+		local talentInfo
+		for tier = 1, MAX_NUM_TALENT_TIERS do
+			for column = 1, NUM_TALENT_COLUMNS do
+				talentInfoQuery.tier = tier
+				talentInfoQuery.column = column
+				talentInfo = GetTalentInfo(talentInfoQuery)
+				-- isExceptional @boolean
+				-- talentID @number
+				-- known @boolean
+				-- maxRank @number
+				-- hasGoldBorder @boolean
+				-- tier @number
+				-- selected @boolean
+				-- icon @number
+				-- grantedByAura @boolean
+				-- meetsPreviewPrereq @boolean
+				-- previewRank @number
+				-- meetsPrereq @boolean
+				-- name @string
+				-- isPVPTalentUnlocked @boolean
+				-- column @number
+				-- rank @number
+				-- available @boolean
+				-- spellID @number	
+				if talentInfo and (talentInfo.selected or talentInfo.grantedByAura) then
+					TalentMap[talentInfo.name] = talentInfo.rank or 1
+					TalentMap[talentInfo.spellID] = talentInfo.rank or 1
+					TalentMap[talentInfo.talentID] = talentInfo.rank or 1
 				end
-			end 
-		end
-
-		TMW:Fire("TMW_UNITSPEC_UPDATE")
-	elseif A.Zone == "pvp" then
-		for i = 1, TeamCacheEnemy.MaxSize do 
-			local name, _, _, _, _, _, _, _, classToken, _, _, _, _, _, _, talentSpec = GetBattlefieldScore(i)
-			if name then
-				local specID = specNameToRole[classToken][talentSpec]
-				if Env.UnitSpecs then 
-					Env.UnitSpecs[name] = specID
-				end 
-				Env.ModifiedUnitSpecs[name] = specID
 			end
 		end
 		
-		TMW:Fire("TMW_UNITSPEC_UPDATE")
+		local _, name, ids
+		if GetPvpTalentInfoByID then
+			ids = GetAllSelectedPvpTalentIDs()
+			for _, id in pairs(ids) do
+				_, name = GetPvpTalentInfoByID(id)
+				if name then
+					TalentMap[name] = true
+					TalentMap[id] = true
+				end
+			end
+		end	
+		
+		TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")		
 	end
-end
 
-SPECS:RegisterEvent("UNIT_NAME_UPDATE",   		"UpdateUnitSpecs")
-SPECS:RegisterEvent("ARENA_OPPONENT_UPDATE", 	"UpdateUnitSpecs")
-SPECS:RegisterEvent("GROUP_ROSTER_UPDATE", 		"UpdateUnitSpecs")
-SPECS:RegisterEvent("PLAYER_ENTERING_WORLD", 	"UpdateUnitSpecs")
-SPECS.PrepareUnitSpecEvents = TMW.NULLFUNC
+	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD", 				TalentMapUpdate)
+	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "ACTIVE_TALENT_GROUP_CHANGED", 		TalentMapUpdate)
+	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_TALENT_UPDATE", 				TalentMapUpdate)
+	-- Legion: Registers events for pvp talents
+	if BuildToC >= 70003 then		
+		Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_PVP_TALENT_UPDATE", 		TalentMapUpdate)
+	end
+	-- SL: Registers events for Torghast 
+	if BuildToC >= 90001 then 
+		Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "ANIMA_DIVERSION_TALENT_UPDATED", TalentMapUpdate)
+	end
+else
+	-- Retail: DF+
+	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "TRAIT_CONFIG_LIST_UPDATED", function()
+		CNDT:RegisterEvent("PLAYER_TALENT_UPDATE")
+		CNDT:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "PLAYER_TALENT_UPDATE")
+		CNDT:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED", "PLAYER_TALENT_UPDATE")
+		CNDT:RegisterEvent("TRAIT_CONFIG_UPDATED", "PLAYER_TALENT_UPDATE")
+		CNDT:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED", "PLAYER_TALENT_UPDATE")
+		local C_TimerAfter = _G.C_Timer.After
+		CNDT:RegisterEvent("TRAIT_TREE_CHANGED", function() 
+			C_TimerAfter(0.5, function()
+				CNDT:PLAYER_TALENT_UPDATE()
+			end)
+		end)		
+		CNDT:PLAYER_TALENT_UPDATE()
+		Listener:Remove("ACTION_EVENT_UTILS_TALENT_MAP", "TRAIT_CONFIG_LIST_UPDATED")
+	end)
+end 
+
+-------------------------------------------------------------------------------
+-- UnitSpecsMap  
+-------------------------------------------------------------------------------
+A.UnitSpecsMap = {}
+if BuildToC >= 50500 then
+	local C_SpecializationInfo = _G.C_SpecializationInfo
+	local 	 GetNumClasses,    GetClassInfo,  											   GetNumSpecializationsForClassID, 										 GetSpecializationInfoForClassID, 	 GetArenaOpponentSpec, 	  GetBattlefieldScore, 	  RequestBattlefieldScoreData,	  UnitName =
+		  _G.GetNumClasses, _G.GetClassInfo, C_SpecializationInfo and C_SpecializationInfo.GetNumSpecializationsForClassID or _G.GetNumSpecializationsForClassID, _G.GetSpecializationInfoForClassID, _G.GetArenaOpponentSpec, _G.GetBattlefieldScore, _G.RequestBattlefieldScoreData, _G.UnitName
+	local UNKNOWN = CONST.UNKNOWN
+	local UnitSpecsMap = A.UnitSpecsMap
+
+	local specNameToRole = {}
+	local _, class, classID, specID, spec, desc, icon
+	for i = 1, GetNumClasses() do
+		_, class, classID = GetClassInfo(i)
+		specNameToRole[class] = {}
+
+		for j = 1, GetNumSpecializationsForClassID(classID) do
+			specID, spec, desc, icon = GetSpecializationInfoForClassID(classID, j)
+			specNameToRole[class][spec] = specID
+		end
+	end
+
+	local function UnitSpecsMapUpdate()
+		wipe(UnitSpecsMap)
+		local z = A.Zone
+		
+		if z == "arena" and GetArenaOpponentSpec then
+			local unit, name, server, specID
+			for i = 1, TeamCacheEnemy.MaxSize do 
+				unit = TeamCacheEnemyIndexToPLAYERs[i]
+
+				if unit then 
+					name, server = UnitName(unit)
+					if name and name ~= UNKNOWN then
+						specID = GetArenaOpponentSpec(i)
+						if server then
+							name = strjoin("-", name, server)
+						end
+						UnitSpecsMap[name] = specID				
+					end
+				end 
+			end
+		elseif z == "pvp" and GetBattlefieldScore then
+			RequestBattlefieldScoreData()
+			
+			local _, name, classToken, talentSpec, specID
+			for i = 1, TeamCacheEnemy.MaxSize do 
+				name, _, _, _, _, _, _, _, classToken, _, _, _, _, _, _, talentSpec = GetBattlefieldScore(i)
+				if name then
+					specID = specNameToRole[classToken][talentSpec]
+					UnitSpecsMap[name] = specID
+				end
+			end
+		end
+	end
+
+	Listener:Add("ACTION_EVENT_UTILS_UNIT_SPECS_MAP", "UNIT_NAME_UPDATE", 				UnitSpecsMapUpdate)
+	Listener:Add("ACTION_EVENT_UTILS_UNIT_SPECS_MAP", "ARENA_OPPONENT_UPDATE", 			UnitSpecsMapUpdate)
+	Listener:Add("ACTION_EVENT_UTILS_UNIT_SPECS_MAP", "GROUP_ROSTER_UPDATE", 			UnitSpecsMapUpdate)
+	Listener:Add("ACTION_EVENT_UTILS_UNIT_SPECS_MAP", "PLAYER_ENTERING_WORLD", 			UnitSpecsMapUpdate)
+end
 
 -------------------------------------------------------------------------------
 -- Env.LastPlayerCast
@@ -849,93 +906,92 @@ local function UpdateFrames()
 end
 
 local function UpdateCVAR()
-    if GetCVar("Contrast") ~= "50" then 
+	local CVars = GetToggle(1, "CVars")
+	
+    if CVars[1] and GetCVar("Contrast") ~= "50" then 
 		SetCVar("Contrast", 50)
 		Print("Contrast should be 50")		
 	end
 	
-    if GetCVar("Brightness") ~= "50" then 
+    if CVars[2] and GetCVar("Brightness") ~= "50" then 
 		SetCVar("Brightness", 50) 
 		Print("Brightness should be 50")			
 	end
 	
-    if GetCVar("Gamma") ~= "1.000000" then 
+    if CVars[3] and GetCVar("Gamma") ~= "1.000000" then 
 		SetCVar("Gamma", "1.000000") 
 		Print("Gamma should be 1")	
 	end
 	
-	local colorblindsimulator = GetCVar("colorblindsimulator") -- Renamed to colorblindSimulator on some versions (?)
-    if colorblindsimulator ~= nil and colorblindsimulator ~= "0" then 
-		SetCVar("colorblindsimulator", 0) 
-	end 
-	
-	local colorblindSimulator = GetCVar("colorblindSimulator")
-	if colorblindSimulator ~= nil and colorblindSimulator ~= "0" then 
-		SetCVar("colorblindSimulator", 0) 
-	end 
-	
-	local colorblindWeaknessFactor = GetCVar("colorblindWeaknessFactor")
-	if colorblindWeaknessFactor ~= nil and colorblindWeaknessFactor ~= "0.5"  then 
-		SetCVar("colorblindWeaknessFactor", 0.5) 
+	if CVars[4] then
+		local colorblindsimulator = GetCVar("colorblindsimulator") -- Renamed to colorblindSimulator on some versions (?)
+		if colorblindsimulator ~= nil and colorblindsimulator ~= "0" then 
+			SetCVar("colorblindsimulator", 0) 
+		end 
+		
+		local colorblindSimulator = GetCVar("colorblindSimulator")
+		if colorblindSimulator ~= nil and colorblindSimulator ~= "0" then 
+			SetCVar("colorblindSimulator", 0) 
+		end 
 	end
 	
-	if toNum[GetCVar("SpellQueueWindow") or 400] == nil then 
+	if CVars[5] then
+		local colorblindWeaknessFactor = GetCVar("colorblindWeaknessFactor")
+		if colorblindWeaknessFactor ~= nil and colorblindWeaknessFactor ~= "0.5"  then 
+			SetCVar("colorblindWeaknessFactor", 0.5) 
+		end
+	end
+	
+	if CVars[6] and toNum[GetCVar("SpellQueueWindow") or 400] == nil then 
 		SetCVar("SpellQueueWindow", 400) 
 	end 
 	
-	--[[
-    if GetCVar("RenderScale") ~= "1" then 
-		SetCVar("RenderScale", 1) 
-	end
-	
-    if GetCVar("MSAAQuality") ~= "0" then 
-		SetCVar("MSAAQuality", 0) 
-	end
-	
-    -- Could effect bugs if > 0 but FXAA should work, some people saying MSAA working too 
-	local AAM = toNum[GetCVar("ffxAntiAliasingMode")]
-    if AAM > 2 and AAM ~= 6 then 		
-		SetCVar("ffxAntiAliasingMode", 0) 
-		Print("You can't set higher AntiAliasing mode than FXAA or not equal to MSAA 8x")
-	end
-	]]
-	
-    if GetCVar("doNotFlashLowHealthWarning") ~="1" then 
+    if CVars[7] and GetCVar("doNotFlashLowHealthWarning") ~="1" then 
 		SetCVar("doNotFlashLowHealthWarning", 1) 
 	end
 	
-	local nameplateMaxDistance = GetCVar("nameplateMaxDistance")
-    if nameplateMaxDistance and toNum[nameplateMaxDistance] < CONST.CACHE_DEFAULT_NAMEPLATE_MAX_DISTANCE then 
-		SetCVar("nameplateMaxDistance", CONST.CACHE_DEFAULT_NAMEPLATE_MAX_DISTANCE) 
-		Print("nameplateMaxDistance " .. nameplateMaxDistance .. " => " .. CONST.CACHE_DEFAULT_NAMEPLATE_MAX_DISTANCE)	
-	end		
+	if CVars[8] then
+		local nameplateMaxDistance = GetCVar("nameplateMaxDistance")
+		if nameplateMaxDistance and toNum[nameplateMaxDistance] < CONST.CACHE_DEFAULT_NAMEPLATE_MAX_DISTANCE then 
+			SetCVar("nameplateMaxDistance", CONST.CACHE_DEFAULT_NAMEPLATE_MAX_DISTANCE) 
+			Print("nameplateMaxDistance " .. nameplateMaxDistance .. " => " .. CONST.CACHE_DEFAULT_NAMEPLATE_MAX_DISTANCE)	
+		end	
+	end
 	
-	if isClassic and toNum[GetCVar("nameplateNotSelectedAlpha") or 0] >= 0 then 
+	if CVars[9] and isClassic and toNum[GetCVar("nameplateNotSelectedAlpha") or 0] >= 0 then 
 		SetCVar("nameplateNotSelectedAlpha", -1)
 	end 
 	
-	if toNum[GetCVar("nameplateOccludedAlphaMult") or 0] > 0.4 then 
+	if CVars[10] and toNum[GetCVar("nameplateOccludedAlphaMult") or 0] > 0.4 then 
 		SetCVar("nameplateOccludedAlphaMult", 0.4)
 	end 
 	
 	-- Description fix
-	if toNum[GetCVar("breakUpLargeNumbers") or 1] ~= 0 then 
+	if CVars[11] and toNum[GetCVar("breakUpLargeNumbers") or 1] ~= 0 then 
 		SetCVar("breakUpLargeNumbers", 0)
 	end
 	
     -- WM removal
-    if GetCVar("screenshotQuality") ~= "10" then 
+    if CVars[12] and GetCVar("screenshotQuality") ~= "10" then 
 		SetCVar("screenshotQuality", 10)  
 	end
 	
-    if GetCVar("nameplateShowEnemies") ~= "1" then
+    if CVars[13] and GetCVar("nameplateShowEnemies") ~= "1" then
         SetCVar("nameplateShowEnemies", 1) 
 		Print("Enemy nameplates should be enabled")
     end
 	
-	if GetCVar("autoSelfCast") ~= "1" then 
+	if CVars[14] and GetCVar("autoSelfCast") ~= "1" then 
 		SetCVar("autoSelfCast", 1)
 	end 
+	
+	if GetToggle(1, "cameraDistanceMaxZoomFactor") then 
+		local cameraDistanceMaxZoomFactor = GetCVar("cameraDistanceMaxZoomFactor")
+		if cameraDistanceMaxZoomFactor ~= "4" then 
+			SetCVar("cameraDistanceMaxZoomFactor", 4) 
+			Print("cameraDistanceMaxZoomFactor " .. cameraDistanceMaxZoomFactor .. " => " .. 4)	
+		end		
+	end
 end
 
 local function ConsoleUpdate()
@@ -943,12 +999,12 @@ local function ConsoleUpdate()
     UpdateFrames()      
 end 
 
-local function TrueScaleInit()
+TMW:RegisterSelfDestructingCallback("TMW_ACTION_IS_INITIALIZED_PRE", function()
     TMW:RegisterCallback("TMW_GROUP_SETUP_POST", function(_, frame)
-            local str_group = toStr[frame]
-            if strfind(str_group, "TellMeWhen_Group1") then                
-                UpdateFrames()  
-            end
+		local str_group = toStr[frame]
+		if strfind(str_group, "TellMeWhen_Group1") then                
+			UpdateFrames()  
+		end
     end)
 	
 	Listener:Add("ACTION_EVENT_UTILS", "DISPLAY_SIZE_CHANGED", 		ConsoleUpdate	)
@@ -977,9 +1033,8 @@ local function TrueScaleInit()
 	
     ConsoleUpdate()
 	
-    TMW:UnregisterCallback("TMW_SAFESETUP_COMPLETE", TrueScaleInit, "TMW_TEMP_SAFESETUP_COMPLETE")
-end
-TMW:RegisterCallback("TMW_SAFESETUP_COMPLETE", TrueScaleInit, "TMW_TEMP_SAFESETUP_COMPLETE")    
+    return true -- Signal RegisterSelfDestructingCallback to unregister
+end)  
 
 function A.BlackBackgroundIsShown()
 	-- @return boolean 

@@ -158,6 +158,9 @@ local GetNetStats 			= _G.GetNetStats
 local GameLocale 			= _G.GetLocale()
 local GetCVar				= _G.GetCVar or _G.C_CVar.GetCVar
 
+-- AssistedCombat
+local GetNextCastSpell		= _G.C_AssistedCombat and A.MakeFunctionCachedStatic(_G.C_AssistedCombat.GetNextCastSpell)
+
 -- Spell 
 local C_Spell						= _G.C_Spell
 local FindSpellBookSlotBySpellID	= _G.FindSpellBookSlotBySpellID
@@ -1121,7 +1124,7 @@ function A:GetItemCooldown()
 	end 	
 	
 	local start, duration, enable = self.Item:GetCooldown()
-	return enable ~= 0 and ((duration == 0 or A_OnGCD(duration)) and 0 or duration - (TMW.time - start)) or huge
+	return (enable == 1 or enable == true) and duration and ((duration == 0 or A_OnGCD(duration)) and 0 or duration - (TMW.time - start)) or huge
 end 
 
 function A:GetItemCategory()
@@ -1172,6 +1175,16 @@ end
 -------------------------------------------------------------------------------
 -- Determine
 -------------------------------------------------------------------------------
+function A.DetermineIsSBAObject(...)
+	-- @return object or nil 
+	for i = 1, select("#", ...) do 
+		local object = select(i, ...)
+		if object:IsSBA() then 
+			return object
+		end 
+	end 
+end 
+
 function A.DetermineHealObject(unitID, skipRange, skipLua, skipShouldStop, skipUsable, ...)
 	-- @return object or nil 
 	-- Note: :PredictHeal(unitID) must be only ! Use 'self' inside to determine by that which spell is it 
@@ -1259,6 +1272,10 @@ end
 -------------------------------------------------------------------------------
 -- Shared
 -------------------------------------------------------------------------------	  
+function A:IsSBA()
+	return GetNextCastSpell() == self.ID
+end
+
 function A:IsExists(replacementByPass)   
 	-- @return boolean
 	if self.Type == "Spell" then 
@@ -1815,6 +1832,7 @@ function A.Create(args)
 	 	Optional:			
 			Desc (@string) 					- description used in A:GetTableKeyIdentify and in UI in the Actions tab in Desc ceil 
 			Hidden (@boolean) 				- hides action from UI and skips it in MetaEngine
+			HiddenUI (@boolean)				- hides action from UI only, if both Hidden and HiddenUI are set then Hidden will take over priority
 			QueueForbidden (@boolean) 		- if true, user will not be able to set queue on it
 			BlockForbidden (@boolean)		- if true, user will not be able to set blocker on it
 			Texture (@number) 				- only if Type is Spell|Item|Potion|Trinket|HeartOfAzeroth|SwapEquip, sets texture from Spell|Item data base
