@@ -19,6 +19,7 @@ local Env 						= CNDT.Env
 local SwingTimers 				= TMW.COMMON.SwingTimerMonitor.SwingTimers
 
 local A   						= _G.Action	
+local BuildToC					= A.BuildToC
 local CONST 					= A.Const
 local Listener					= A.Listener
 
@@ -50,8 +51,8 @@ local C_Item					= _G.C_Item
 local InCombatLockdown			= _G.InCombatLockdown  
 local issecure					= _G.issecure
 
-local 	 UnitLevel,    UnitPower, 	 UnitPowerMax, 	  UnitStagger, 	  UnitAttackSpeed, 	  UnitRangedDamage,    UnitDamage,    C_UnitAuras,    UnitGUID=
-	  _G.UnitLevel, _G.UnitPower, _G.UnitPowerMax, _G.UnitStagger, _G.UnitAttackSpeed, _G.UnitRangedDamage, _G.UnitDamage, _G.C_UnitAuras, _G.UnitGUID
+local 	 UnitLevel,    UnitPower, 	 UnitPowerMax, 	  UnitStagger, 	  UnitAttackSpeed, 	  UnitRangedDamage,    UnitDamage, 	  UnitGUID,    C_UnitAuras =
+	  _G.UnitLevel, _G.UnitPower, _G.UnitPowerMax, _G.UnitStagger, _G.UnitAttackSpeed, _G.UnitRangedDamage, _G.UnitDamage, _G.UnitGUID, _G.C_UnitAuras
 
 local	 GetPowerRegen,    GetRuneCooldown,	   GetRuneType,    GetShapeshiftForm, 	 GetCritChance,    GetHaste, 	GetMasteryEffect, 	 GetVersatilityBonus, 	 GetCombatRatingBonus, 	  GetComboPoints =
 	  _G.GetPowerRegen, _G.GetRuneCooldown, _G.GetRuneType, _G.GetShapeshiftForm, _G.GetCritChance, _G.GetHaste, _G.GetMasteryEffect, _G.GetVersatilityBonus, _G.GetCombatRatingBonus, _G.GetComboPoints 
@@ -66,6 +67,12 @@ local 	 CancelUnitBuff, 	CancelSpellByName, 	  CombatLogGetCurrentEventInfo =
 local 	 C_Container = _G.C_Container
 local 	 GetContainerNumSlots, 	  									  GetContainerItemID, 	 								   GetInventoryItemID, 	  										  GetItemInfoInstant,    								   GetItemCount, 	  									  IsEquippableItem =	  
 	  _G.GetContainerNumSlots or C_Container.GetContainerNumSlots, _G.GetContainerItemID or C_Container.GetContainerItemID, _G.GetInventoryItemID, C_Item and C_Item.GetItemInfoInstant or _G.GetItemInfoInstant, C_Item and C_Item.GetItemCount or _G.GetItemCount, C_Item and C_Item.IsEquippableItem or _G.IsEquippableItem
+
+-- Glyphs: WOTLK - BFA
+local C_SpecializationInfo 		= _G.C_SpecializationInfo
+local  																		   GetActiveTalentGroup,	GetGlyphSocketInfo,	   GetNumGlyphSockets = 
+		C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup or _G.GetActiveTalentGroup, _G.GetGlyphSocketInfo, _G.GetNumGlyphSockets
+	
 	  
 -- Totems
 local GetTotemInfo				= _G.GetTotemInfo
@@ -179,10 +186,12 @@ local Data = {
 	-- Runes
 	RunePresence = {
 		[CONST.DEATHKNIGHT_BLOOD] 	= 1, 	Blood 	= 1, 
-		[CONST.DEATHKNIGHT_FROST] 	= 3, 	Frost 	= 3,
-		[CONST.DEATHKNIGHT_UNHOLY] 	= 2, 	Unholy 	= 2,
+		[CONST.DEATHKNIGHT_FROST] 	= 2, 	Frost 	= 2, -- DON'T TOUCH THIS: WIKI HAS INCORRECT INDEXES AT LEAST ON MOP
+		[CONST.DEATHKNIGHT_UNHOLY] 	= 3, 	Unholy 	= 3, -- DON'T TOUCH THIS: WIKI HAS INCORRECT INDEXES AT LEAST ON MOP
 											Death 	= 4,
-	},
+	},	
+	-- Glyph
+	Glyphs		= {},
 } 
 
 local DataAuraStealthed				= Data.AuraStealthed
@@ -196,6 +205,7 @@ local DataInfoBags					= Data.InfoBags
 local DataCheckInv					= Data.CheckInv
 local DataInfoInv					= Data.InfoInv
 local DataRunePresence				= Data.RunePresence
+local DataGlyphs					= Data.Glyphs
 
 function Data.logAura(...)
 	local _, EVENT, _, SourceGUID, _, _, _, DestGUID, _, _, _, _, spellName, _, auraType = CombatLogGetCurrentEventInfo() 
@@ -376,6 +386,24 @@ function Data.logInv()
 	end 
 end 
 
+function Data.UpdateGlyphs()
+	wipe(DataGlyphs)
+	
+	local talentGroup = GetActiveTalentGroup() or 1
+	local enabled, _, spellID, spellName, glyphID
+	for i = 1, GetNumGlyphSockets() do 
+		enabled, _, _, spellID, _, glyphID = GetGlyphSocketInfo(i, talentGroup)
+		if enabled and spellID then 
+			spellName = GetSpellName(spellID)
+			if spellName then 
+				DataGlyphs[glyphID] = true 
+				DataGlyphs[spellID] = true 
+				DataGlyphs[spellName] = true 
+			end 
+		end 
+	end 
+end 
+
 Listener:Add("ACTION_EVENT_PLAYER", "PLAYER_STARTED_MOVING", function()
 	if Data.TimeStampMoving ~= TMW.time then 
 		Data.TimeStampMoving = TMW.time 
@@ -419,6 +447,14 @@ Listener:Add("ACTION_EVENT_PLAYER", "UPDATE_SHAPESHIFT_FORMS", 				Data.UpdateSt
 Listener:Add("ACTION_EVENT_PLAYER", "UPDATE_SHAPESHIFT_FORM", 				Data.UpdateStance)
 Listener:Add("ACTION_EVENT_PLAYER", "PLAYER_ENTERING_WORLD", 				Data.UpdateStance)
 Listener:Add("ACTION_EVENT_PLAYER", "PLAYER_LOGIN", 						Data.UpdateStance)
+
+-- Glyphs: WOTLK - BFA
+if BuildToC >= 30000 and BuildToC < 80000 then
+	Listener:Add("ACTION_EVENT_PLAYER_GLYPH", "GLYPH_ADDED", 					Data.UpdateGlyphs)
+	Listener:Add("ACTION_EVENT_PLAYER_GLYPH", "GLYPH_REMOVED", 					Data.UpdateGlyphs)
+	Listener:Add("ACTION_EVENT_PLAYER_GLYPH", "GLYPH_UPDATED", 					Data.UpdateGlyphs)
+	TMW:RegisterCallback("TMW_ACTION_PLAYER_SPECIALIZATION_CHANGED", 			Data.UpdateGlyphs)
+end
 
 local function RecoveryOffset()
 	return A_GetPing() + A_GetCurrentGCD()
@@ -734,6 +770,13 @@ function Player:HasAuraStacksBySpellID(spellID)
     end
 end
 
+-- Glyphs: WOTLK - BFA
+function Player:HasGlyph(spell)
+	-- @usage Player:HasGlyph(spellName) or Player:HasGlyph(spellID) or Player:HasGlyph(glyphID) 
+	-- As spellID and spellName should be specified name of glyph (not name of ability)
+	-- @return boolean 
+	return DataGlyphs[spell]
+end 
 
 -- totems 
 function Player:GetTotemInfo(i)
@@ -1643,12 +1686,11 @@ end
 function Player:Rune(presence)
 	local presenceType = DataRunePresence[presence]	or presence
     local c = 0
-
 	local runeType
 	for i = 1, 6 do
 		runeType = presenceType and GetRuneType and GetRuneType(i) or nil
 		if ComputeRuneCooldown(i) == 0 and (runeType == presenceType or runeType == 4) then -- 4 is RUNETYPE_DEATH
-			c = c + 1
+			c = c + 1			
 		end
 	end	
 
