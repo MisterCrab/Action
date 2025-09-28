@@ -455,6 +455,7 @@ if BuildToC < 50500 then
 			end
 		end
 		TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")
+		Listener:Remove("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD")
 	end
 
 	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD", 			TalentMapUpdate)
@@ -520,7 +521,8 @@ elseif BuildToC < 100000 then
 			end
 		end	
 		
-		TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")		
+		TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")
+		Listener:Remove("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD")
 	end
 
 	Listener:Add("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD", 				TalentMapUpdate)
