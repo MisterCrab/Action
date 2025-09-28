@@ -74,9 +74,9 @@ local GetSpellName 							= C_Spell and C_Spell.GetSpellName or _G.GetSpellInfo
 local GetSpellInfo							= C_Spell and C_Spell.GetSpellInfo or _G.GetSpellInfo
 local GetPartyAssignment 					= _G.GetPartyAssignment	 
 local UnitIsUnit, UnitPlayerOrPetInRaid, UnitInAnyGroup, UnitPlayerOrPetInParty, UnitInRange, UnitInVehicle, UnitIsQuestBoss, UnitEffectiveLevel, UnitLevel, UnitThreatSituation, UnitRace, UnitClass, UnitGroupRolesAssigned, UnitClassification, UnitExists, UnitIsConnected, UnitIsCharmed, UnitIsGhost, UnitIsDeadOrGhost, UnitIsFeignDeath, UnitIsPlayer, UnitPlayerControlled, UnitCanAttack, UnitIsEnemy, UnitAttackSpeed,
-	  UnitPowerType, UnitPowerMax, UnitPower, UnitName, UnitCanCooperate, UnitCastingInfo, UnitChannelInfo, UnitCreatureType, UnitCreatureFamily, UnitHealth, UnitHealthMax, UnitGetIncomingHeals, UnitGUID, UnitHasIncomingResurrection, UnitIsVisible, UnitGetTotalHealAbsorbs, UnitAura =
+	  UnitPowerType, UnitPowerMax, UnitPower, UnitName, UnitCanCooperate, UnitCastingInfo, UnitChannelInfo, UnitCreatureType, UnitCreatureFamily, UnitHealth, UnitHealthMax, UnitGetIncomingHeals, UnitGUID, UnitHasIncomingResurrection, UnitIsVisible, UnitGetTotalHealAbsorbs, UnitStagger, UnitAura =
 	  UnitIsUnit, UnitPlayerOrPetInRaid, UnitInAnyGroup, UnitPlayerOrPetInParty, UnitInRange, UnitInVehicle, UnitIsQuestBoss, UnitEffectiveLevel, UnitLevel, UnitThreatSituation, UnitRace, UnitClass, UnitGroupRolesAssigned, UnitClassification, UnitExists, UnitIsConnected, UnitIsCharmed, UnitIsGhost, UnitIsDeadOrGhost, UnitIsFeignDeath, UnitIsPlayer, UnitPlayerControlled, UnitCanAttack, UnitIsEnemy, UnitAttackSpeed,
-	  UnitPowerType, UnitPowerMax, UnitPower, UnitName, UnitCanCooperate, UnitCastingInfo, UnitChannelInfo, UnitCreatureType, UnitCreatureFamily, UnitHealth, UnitHealthMax, UnitGetIncomingHeals, UnitGUID, UnitHasIncomingResurrection, UnitIsVisible, UnitGetTotalHealAbsorbs, _G.C_UnitAuras.GetAuraDataByIndex
+	  UnitPowerType, UnitPowerMax, UnitPower, UnitName, UnitCanCooperate, UnitCastingInfo, UnitChannelInfo, UnitCreatureType, UnitCreatureFamily, UnitHealth, UnitHealthMax, UnitGetIncomingHeals, UnitGUID, UnitHasIncomingResurrection, UnitIsVisible, UnitGetTotalHealAbsorbs, UnitStagger, _G.C_UnitAuras.GetAuraDataByIndex
 -------------------------------------------------------------------------------
 -- Remap
 -------------------------------------------------------------------------------
@@ -3169,11 +3169,13 @@ A.Unit = PseudoClass({
 		-- @return boolean
 		-- Nill-able: class
 		local unitID 						= self.UnitID
-		if InfoClassCanBeHealer[class or self(unitID):Class()] then
-			if self(unitID):IsEnemy() then
+		local unitID_class 					= class or self(unitID):Class()		
+		if InfoClassCanBeHealer[unitID_class] then
+			local isEnemy 					= self(unitID):IsEnemy()
+			if isEnemy then
 				if TeamCacheEnemyHEALER[unitID] or self(unitID):HasSpec(InfoSpecIs.HEALER) then
 					return true
-				elseif BuildToC >= 50500 then
+				elseif BuildToC >= 50500 and (A.Zone == "pvp" or A.Zone == "arena") then
 					return false
 				end
 			else
@@ -3186,8 +3188,65 @@ A.Unit = PseudoClass({
 					return true
 				elseif role and role ~= "NONE" then
 					return false
+				elseif GetPartyAssignment("maintank", unitID) or GetPartyAssignment("mainassist", unitID) then
+					return false
 				end
 			end
+			
+			-- Fallback
+			if unitID_class == "PALADIN" then 				
+				local _, power = UnitPowerType(unitID)
+				local _, offhand = UnitAttackSpeed(unitID)
+				if power ~= "MANA" or offhand ~= nil then
+					return false
+				else
+					local tankBuff = self(unitID):HasBuffs(tankBuffsOrCanBeTank)
+					if tankBuff > 0 then 
+						-- Protection
+						if not A_GetUnitItem or isEnemy or A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD, nil, true) then -- byPassDistance, so if buff is up he's more likely tank
+							return false
+						end
+					else
+						-- Retribution
+						if not isEnemy and A_GetUnitItem and not A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD) then
+							return false
+						end
+					end
+				end				
+			elseif unitID_class == "DRUID" then 
+				local _, power = UnitPowerType(unitID)
+				if power ~= "MANA" or self(unitID):HasBuffs(InfoClassCanBeTank[unitID_class]) > 0 then
+					return false
+				end
+			elseif unitID_class == "MONK" then
+				local _, power = UnitPowerType(unitID)
+				local _, offhand = UnitAttackSpeed(unitID)
+				if power == "MANA" then
+					return true
+				elseif offhand ~= nil then
+					return false
+				elseif UnitStagger and UnitStagger(unitID) ~= 0 then
+					return false
+				end					
+			elseif unitID_class == "PRIEST" then
+				local _, power = UnitPowerType(unitID)
+				if power ~= "MANA" then
+					return false
+				end
+			elseif unitID_class == "SHAMAN" then
+				local _, power = UnitPowerType(unitID)
+				local _, offhand = UnitAttackSpeed(unitID)
+				if power ~= "MANA" or offhand ~= nil then
+					return false
+				end			
+			end
+			
+			if not A.IsInPvP then 
+				local unitIDtarget = strjoin("", unitID, "target")
+				if UnitIsUnit(unitID, strjoin("", unitIDtarget, "target")) and self(unitIDtarget):IsBoss() then 
+					return false 
+				end
+			end				
 			
 											-- bypass it in PvP 
 			local taken_dmg 				= (self(unitID):IsEnemy() and self(unitID):IsPlayer() and 0) or CombatTracker:GetDMG(unitID)
@@ -3208,10 +3267,11 @@ A.Unit = PseudoClass({
 		local unitID_class 					= class or self(unitID):Class()
 		local tankBuffsOrCanBeTank			= InfoClassCanBeTank[unitID_class]
 		if tankBuffsOrCanBeTank then 
-			if self(unitID):IsEnemy() then
+			local isEnemy 					= self(unitID):IsEnemy()
+			if isEnemy then
 				if TeamCacheEnemyTANK[unitID] or self(unitID):HasSpec(InfoSpecIs.TANK) then
 					return true
-				elseif BuildToC >= 50500 then
+				elseif BuildToC >= 50500 and (A.Zone == "pvp" or A.Zone == "arena") then
 					return false
 				end
 			else
@@ -3220,35 +3280,66 @@ A.Unit = PseudoClass({
 				end
 				
 				local role = UnitGroupRolesAssigned(unitID)
-				if role == "TANK" or (unitID:find("raid") and GetPartyAssignment("maintank", unitID)) or (UnitIsUnit(unitID, "player") and self(unitID):HasSpec(InfoSpecIs.TANK)) then
+				if role == "TANK" or GetPartyAssignment("maintank", unitID) or (UnitIsUnit(unitID, "player") and self(unitID):HasSpec(InfoSpecIs.TANK)) then
 					return true
 				elseif role and role ~= "NONE" then
 					return false
-				end
+				end	
+			end		
 			
-				if unitID_class == "PALADIN" then 
-					local _, offhand = UnitAttackSpeed(unitID)
-					return offhand == nil and self(unitID):HasBuffs(tankBuffsOrCanBeTank) > 0 and (CombatTracker:CombatTime("player") > 0 or (A_GetUnitItem and A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD, nil, true))) -- byPassDistance
-				elseif unitID_class == "DRUID" then 
-					return UnitPowerType(unitID) == 1 and self(unitID):HasBuffs(tankBuffsOrCanBeTank) > 0
-				elseif unitID_class == "WARRIOR" then 								
-					if CombatTracker:CombatTime("player") == 0 then 
-						-- 1h+shield
-						local _, offhand = UnitAttackSpeed(unitID)
-						return offhand == nil and (A_GetUnitItem and A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD)) -- don't byPassDistance
-					elseif self(unitID):HasBuffs(tankBuffsOrCanBeTank) == 0 and (A.IsInPvP or self:ThreatSituation() < 3) then
-						return false
-						-- ↓↓↓ if warrior in Defensive Stance or has threat he can be tank, then we will use generic approach below to recognize it ↓↓↓
+			-- Fallback
+			if unitID_class == "PALADIN" then 
+				local _, power = UnitPowerType(unitID)
+				local _, offhand = UnitAttackSpeed(unitID)
+				if power ~= "MANA" or offhand ~= nil then
+					return false
+				else
+					local tankBuff = self(unitID):HasBuffs(tankBuffsOrCanBeTank)
+					if tankBuff > 0 then 
+						-- Protection
+						if not A_GetUnitItem or isEnemy or A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD, nil, true) then -- byPassDistance, so if buff is up he's more likely tank
+							return true
+						end
+					else
+						-- Retribution
+						if A.IsInPvP or self(unitID):ThreatSituation(strjoin("", unitID, "target")) < 3 then
+							return false
+						end
 					end
+				end
+			elseif unitID_class == "DRUID" then 
+				local _, power = UnitPowerType(unitID)
+				return power == "RAGE" or self(unitID):HasBuffs(tankBuffsOrCanBeTank) > 0
+			elseif unitID_class == "WARRIOR" then				
+				local _, offhand = UnitAttackSpeed(unitID)
+				-- 1h+shield ensures he's friendly tank
+				if offhand == nil and not isEnemy and A_GetUnitItem and A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD) then -- don't byPassDistance
+					return true
 				end
 				
-				if not A.IsInPvP then 
-					local unitIDtarget = strjoin("", unitID, "target")
-					if UnitIsUnit(unitID, strjoin("", unitIDtarget, "target")) and self(unitIDtarget):IsBoss() then 
-						return true 
-					end
-				end			
-			end		
+				if self(unitID):HasBuffs(tankBuffsOrCanBeTank) == 0 and (A.IsInPvP or self(unitID):ThreatSituation(strjoin("", unitID, "target")) < 3) then
+					return false
+					-- ↓↓↓ if warrior in Defensive Stance or has threat he can be tank even without shield equipped aka fury tank, then we will use generic approach below to recognize it ↓↓↓
+				end
+			elseif unitID_class == "MONK" then
+				local _, power = UnitPowerType(unitID)
+				local _, offhand = UnitAttackSpeed(unitID)
+				if power == "MANA" or offhand ~= nil then
+					return false
+				elseif UnitStagger and UnitStagger(unitID) ~= 0 then
+					return true
+				end				
+			elseif unitID_class == "DEATHKNIGHT" then
+				local _, offhand = UnitAttackSpeed(unitID)
+				return offhand == nil and self(unitID):HasBuffs(tankBuffsOrCanBeTank) > 0
+			end
+			
+			if not A.IsInPvP then 
+				local unitIDtarget = strjoin("", unitID, "target")
+				if UnitIsUnit(unitID, strjoin("", unitIDtarget, "target")) and self(unitIDtarget):IsBoss() then 
+					return true 
+				end
+			end					
 			
 			local taken_dmg 				= CombatTracker:GetDMG(unitID)
 			local done_dmg					= CombatTracker:GetDPS(unitID)
@@ -3261,13 +3352,15 @@ A.Unit = PseudoClass({
 		local unitID 						= self.UnitID
 		return InfoClassCanBeTank[self(unitID):Class()] and true -- don't touch true otherwise it may return table or number because of tank buffs
 	end, "UnitID"),	
-	IsDamager								= Cache:Pass(function(self)    
+	IsDamager								= Cache:Pass(function(self, class)    
 		-- @return boolean 
 		local unitID 						= self.UnitID
-	    if self(unitID):IsEnemy() then
+		local unitID_class 					= class or self(unitID):Class()
+		local isEnemy 						= self(unitID):IsEnemy()
+	    if isEnemy then
 			if TeamCacheEnemyDAMAGER[unitID] or self(unitID):HasSpec(InfoSpecIs.DAMAGER) then
 				return true
-			elseif BuildToC >= 50500 then
+			elseif BuildToC >= 50500 and (A.Zone == "pvp" or A.Zone == "arena") then
 				return false
 			end
 		else
@@ -3276,15 +3369,72 @@ A.Unit = PseudoClass({
 			end
 			
 			local role = UnitGroupRolesAssigned(unitID)
-			if role == "DAMAGER" or (unitID:find("raid") and GetPartyAssignment("mainassist", unitID)) or (UnitIsUnit(unitID, "player") and self(unitID):HasSpec(InfoSpecIs.DAMAGER)) then
+			if role == "DAMAGER" or (UnitIsUnit(unitID, "player") and self(unitID):HasSpec(InfoSpecIs.DAMAGER)) then
 				return true
 			elseif role and role ~= "NONE" then
+				return false
+			elseif GetPartyAssignment("maintank", unitID) then
 				return false
 			end
 		end
 		
+		-- Fallback
+		if unitID_class == "PALADIN" then 
+			local _, power = UnitPowerType(unitID)
+			local _, offhand = UnitAttackSpeed(unitID)
+			if power ~= "MANA" or offhand ~= nil then
+				return true
+			else
+				local tankBuff = self(unitID):HasBuffs(InfoClassCanBeTank[unitID_class])
+				if tankBuff > 0 then 
+					-- Protection
+					if not A_GetUnitItem or isEnemy or A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD, nil, true) then -- byPassDistance, so if buff is up he's more likely tank
+						return false
+					end
+				else
+					-- Retribution
+					if not isEnemy and A_GetUnitItem and not A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD) then
+						return true
+					end
+				end
+			end			
+		elseif unitID_class == "DRUID" then 			
+			if self(unitID):HasBuffs(InfoClassCanBeTank[unitID_class]) > 0 then
+				return false
+			end
+			
+			local _, power = UnitPowerType(unitID)
+			return power == "ENERGY" or power == "LUNARPOWER" 
+		elseif unitID_class == "MONK" then
+			local _, power = UnitPowerType(unitID)
+			local _, offhand = UnitAttackSpeed(unitID)
+			if power == "MANA" then
+				return false
+			elseif offhand ~= nil or (UnitStagger and UnitStagger(unitID) == 0) then
+				return true
+			end
+		elseif unitID_class == "PRIEST" then
+			local _, power = UnitPowerType(unitID)
+			if power ~= "MANA" then
+				return true
+			end
+		elseif unitID_class == "SHAMAN" then
+			local _, power = UnitPowerType(unitID)
+			local _, offhand = UnitAttackSpeed(unitID)
+			if power ~= "MANA" or offhand ~= nil then
+				return true
+			end	
+		end
+		
+		if not A.IsInPvP then 
+			local unitIDtarget = strjoin("", unitID, "target")
+			if UnitIsUnit(unitID, strjoin("", unitIDtarget, "target")) and self(unitIDtarget):IsBoss() then 
+				return false 
+			end
+		end		
+		
 											-- bypass it in PvP 
-		local taken_dmg 					= (self(unitID):IsEnemy() and self(unitID):IsPlayer() and 0) or CombatTracker:GetDMG(unitID) 
+		local taken_dmg 					= (isEnemy and self(unitID):IsPlayer() and 0) or CombatTracker:GetDMG(unitID) 
 		local done_dmg						= CombatTracker:GetDPS(unitID)
 		local done_hps						= CombatTracker:GetHPS(unitID)
 		return done_dmg > taken_dmg and done_dmg > done_hps 
@@ -3292,15 +3442,55 @@ A.Unit = PseudoClass({
 	IsMelee 								= Cache:Pass(function(self, class) 
 		-- @return boolean 
 		local unitID 						= self.UnitID
-		local class 						= class or self(unitID):Class()
-		if InfoClassCanBeMelee[class] then
-			if self(unitID):IsEnemy() then
-				return TeamCacheEnemyDAMAGER_MELEE[unitID] or self(unitID):HasSpec(InfoSpecIs.MELEE)			
-			elseif UnitIsUnit(unitID, "player") then
-				return self(unitID):HasSpec(InfoSpecIs.MELEE)
-			elseif TeamCacheFriendlyDAMAGER_MELEE[unitID] then
-				return true
-			elseif class == "HUNTER" then
+		local unitID_class 					= class or self(unitID):Class()		
+		if InfoClassCanBeMelee[unitID_class] then
+			local isEnemy 					= self(unitID):IsEnemy()
+			if isEnemy then
+				if TeamCacheEnemyDAMAGER_MELEE[unitID] or self(unitID):HasSpec(InfoSpecIs.MELEE) then
+					return true
+				elseif BuildToC >= 50500 and (A.Zone == "pvp" or A.Zone == "arena") then
+					return false
+				end
+			else
+				if TeamCacheFriendlyDAMAGER_MELEE[unitID] then
+					return true
+				end
+
+				local role = UnitGroupRolesAssigned(unitID)
+				if role == "TANK" or (role == "DAMAGER" and (unitID_class == "PALADIN" or unitID_class == "MONK")) or GetPartyAssignment("maintank", unitID) or (UnitIsUnit(unitID, "player") and self(unitID):HasSpec(InfoSpecIs.MELEE)) then
+					return true
+				elseif role == "HEALER" then
+					return false
+				end
+			end 
+			
+			-- Fallback
+			if unitID_class == "PALADIN" then	
+				local _, power = UnitPowerType(unitID)
+				local _, offhand = UnitAttackSpeed(unitID)
+				if power ~= "MANA" or offhand ~= nil then
+					return true
+				else
+					local tankBuff = self(unitID):HasBuffs(InfoClassCanBeTank[unitID_class])
+					if tankBuff > 0 then 
+						-- Protection
+						if not A_GetUnitItem or isEnemy or A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD, nil, true) then -- byPassDistance, so if buff is up he's more likely tank
+							return true
+						end
+					else
+						-- Retribution
+						if not isEnemy and A_GetUnitItem and not A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD) then
+							return true
+						end
+						
+															-- bypass it in PvP 
+						local taken_dmg 					= (isEnemy and self(unitID):IsPlayer() and 0) or CombatTracker:GetDMG(unitID) 
+						local done_dmg						= CombatTracker:GetDPS(unitID)
+						local done_hps						= CombatTracker:GetHPS(unitID)
+						return done_dmg > taken_dmg and done_dmg > done_hps 
+					end
+				end
+			elseif unitID_class == "HUNTER" then
 				return
 				(
 					self(unitID):GetSpellCounter(186270) > 0 or -- Raptor Strike
@@ -3308,15 +3498,26 @@ A.Unit = PseudoClass({
 					self(unitID):GetSpellCounter(190925) > 0 or -- Harpoon
 					self(unitID):GetSpellCounter(259495) > 0    -- Firebomb
 				)
-			elseif class == "SHAMAN" then
+			elseif unitID_class == "SHAMAN" then
 				local _, offhand = UnitAttackSpeed(unitID)
 				return offhand ~= nil
-			elseif class == "MONK" then
+			elseif unitID_class == "MONK" then
 				local _, power = UnitPowerType(unitID)
-				return power == "STAGGER" or power == "CHI" or self(unitID):Role() ~= "HEALER"
-			elseif class == "DRUID" then
+				local _, offhand = UnitAttackSpeed(unitID)
+				if power == "MANA" then
+					return false
+				elseif offhand ~= nil or (UnitStagger and UnitStagger(unitID) > 0) then
+					return true
+				else
+														-- bypass it in PvP 
+					local taken_dmg 					= (isEnemy and self(unitID):IsPlayer() and 0) or CombatTracker:GetDMG(unitID) 
+					local done_dmg						= CombatTracker:GetDPS(unitID)
+					local done_hps						= CombatTracker:GetHPS(unitID)
+					return done_dmg > taken_dmg and done_dmg > done_hps 
+				end
+			elseif unitID_class == "DRUID" then
 				local _, power = UnitPowerType(unitID)
-				return power == "ENERGY" or power == "FURY" or self(unitID):Role() == "TANK"
+				return power == "ENERGY" or power == "RAGE"
 			else 				
 				return true -- Warrior, Rogue, DH, DK
 			end
