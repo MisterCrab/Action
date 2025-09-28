@@ -1,30 +1,38 @@
-local TMW 									= TMW
+local TMW 									= _G.TMW
 local GetSpellTexture						= TMW.GetSpellTexture
 
-local A 									= Action
-local GetSpellInfo							= A.GetSpellInfo
-local print 								= A.Print
+local A 									= _G.Action
+local wipe									= _G.wipe
+local tostringall							= _G.tostringall
 
-local GetSpellSubtext, GetSpellBaseCooldown	= 
-	  GetSpellSubtext. GetSpellBaseCooldown
+local GetSpellBaseCooldown				 	= _G.GetSpellBaseCooldown
+local GetSpellDescription					= _G.C_Spell.GetSpellDescription
+local GetSpellInfo							= _G.C_Spell.GetSpellInfo
 
--- Classic version
-function ClassicTriggerGCD()
-	TMW.db.global.TriggerGCD = nil
-	local temp = {}
-	for i = 1, 900000 do 
-		local spellName, _, spellTexture, _, _, _, spellID = GetSpellInfo(i)
-		if spellName and spellID == i and GetSpellTexture(spellID) then 
-			local isPlayerSpell = GetSpellSubtext(spellID)
-			if isPlayerSpell and isPlayerSpell ~= "" then 
-				local base, baseGCD = GetSpellBaseCooldown(spellID)
-				if base and baseGCD then 
-					temp[spellID] = baseGCD
+function UpdateTriggerGCD()
+	if TMW.db.global.TriggerGCD then 
+		wipe(TMW.db.global.TriggerGCD)
+	else 
+		TMW.db.global.TriggerGCD = {}
+	end 
+	local TriggerGCD = TMW.db.global.TriggerGCD
+	
+	local spellInfo, spellName, spellID, base, baseGCD
+	for i = 1, 1000000 do 
+		spellInfo = GetSpellInfo(i)
+		if spellInfo then
+			spellName, spellID = spellInfo.name, spellInfo.spellID
+			if spellID == i and spellName:find("[\128-\255]") and GetSpellTexture(spellID) then 
+				if GetSpellDescription(spellID) then 
+					base, baseGCD = GetSpellBaseCooldown(spellID)
+					if base and baseGCD then 
+						TriggerGCD[tostringall(i .. "	")] = baseGCD
+						-- RegEx (\d)\s("]) => $1]
+					end 
 				end 
-			end 
-		end 
+			end
+		end
 	end 
 	
-	TMW.db.global.TriggerGCD = temp
-	print("TriggerGCD updated!")
+	A.Print("TriggerGCD updated!")
 end 
