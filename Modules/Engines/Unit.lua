@@ -3200,7 +3200,7 @@ A.Unit = PseudoClass({
 				if power ~= "MANA" or offhand ~= nil then
 					return false
 				else
-					local tankBuff = self(unitID):HasBuffs(tankBuffsOrCanBeTank)
+					local tankBuff = self(unitID):HasBuffs(InfoClassCanBeTank[unitID_class])
 					if tankBuff > 0 then 
 						-- Protection
 						if not A_GetUnitItem or isEnemy or A_GetUnitItem(unitID, CONST.INVSLOT_OFFHAND, LE_ITEM_CLASS_ARMOR, LE_ITEM_ARMOR_SHIELD, nil, true) then -- byPassDistance, so if buff is up he's more likely tank
