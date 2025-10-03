@@ -1929,6 +1929,9 @@ function A.Create(args)
 			/use 13, 14, any Healthstone, any HealingPotion (see Core.lua)
 			/stopcasting, /targetenemy, /targetlasttarget, /startattack, /stopattack
 			
+			These actions are undefined and should be used through texture argument as non action-object:
+			A:Show(icon, ACTION_CONST_STOPCAST) resolves /stopcasting
+			
 			
 			Structure and construction:
 				-- Means
