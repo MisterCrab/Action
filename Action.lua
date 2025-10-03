@@ -1,5 +1,5 @@
 --- 
-local DateTime 														= "28.09.2025"
+local DateTime 														= "03.10.2025"
 ---
 local pcall, ipairs, pairs, type, assert, error, setfenv, getmetatable, setmetatable, loadstring, next, unpack, select, _G, coroutine, table, math, string =
 	  pcall, ipairs, pairs, type, assert, error, setfenv, getmetatable, setmetatable, loadstring, next, unpack, select, _G, coroutine, table, math, string
@@ -300,6 +300,8 @@ local Localization = {
 				LOOTFRAME = "LootFrame",
 				EATORDRINK = "Is Eating or Drinking",
 				MISC = "Misc:",		
+				DISABLEREGULARFRAMES = "Hide regular frames",
+				DISABLEREGULARFRAMESTOOLTIP = "Works only on Meta Engine\nHides group of frames at the left upper corner",
 				DISABLEROTATIONDISPLAY = "Hide display rotation",
 				DISABLEROTATIONDISPLAYTOOLTIP = "Hides the group, which is usually at the\ncenter bottom of the screen",
 				DISABLEBLACKBACKGROUND = "Hide black background", 
@@ -899,6 +901,8 @@ local Localization = {
 				LOOTFRAME = "Открыто окно добычи\n(лута)",		
 				EATORDRINK = "Вы Пьете или Едите",
 				MISC = "Разное:",
+				DISABLEREGULARFRAMES = "Скрыть стандартные рамки",
+				DISABLEREGULARFRAMESTOOLTIP = "Работает только с Meta Engine\nСкрывает группу рамок в левом верхнем углу",
 				DISABLEROTATIONDISPLAY = "Скрыть отображение\nротации",
 				DISABLEROTATIONDISPLAYTOOLTIP = "Скрывает группу, которая обычно в\nцентральной нижней части экрана",
 				DISABLEBLACKBACKGROUND = "Скрыть черный фон", 
@@ -1499,7 +1503,9 @@ local Localization = {
 				SPELLISTARGETINGTOOLTIP = "Example: Blizzard, Heldenhafter Sprung, Eiskältefalle",
 				LOOTFRAME = "Beutefenster",
 				EATORDRINK = "Isst oder trinkt",
-				MISC = "Verschiedenes:",		
+				MISC = "Verschiedenes:",	
+				DISABLEREGULARFRAMES = "Standard-Frames ausblenden",
+				DISABLEREGULARFRAMESTOOLTIP = "Funktioniert nur mit Meta Engine\nBlendet eine Gruppe von Frames oben links aus",
 				DISABLEROTATIONDISPLAY = "Verstecke Rotationsanzeige",
 				DISABLEROTATIONDISPLAYTOOLTIP = "Blendet die Gruppe aus, die sich normalerweise im unteren Bereich des Bildschirms befindet",
 				DISABLEBLACKBACKGROUND = "Verstecke den schwarzen Hintergrund", 
@@ -2102,6 +2108,8 @@ local Localization = {
 				LOOTFRAME = "Fenêtre du butin",
 				EATORDRINK = "Est-ce que manger ou boire",
 				MISC = "Autre:",		
+				DISABLEREGULARFRAMES = "Masquer les cadres standards",
+				DISABLEREGULARFRAMESTOOLTIP = "Fonctionne uniquement avec Meta Engine\nMasque le groupe de cadres en haut à gauche",				
 				DISABLEROTATIONDISPLAY = "Cacher l'affichage de la\nrotation",
 				DISABLEROTATIONDISPLAYTOOLTIP = "Cacher le groupe, qui se trouve par défaut\n en bas au centre de l'écran",
 				DISABLEBLACKBACKGROUND = "Cacher le fond noir", 
@@ -2701,6 +2709,8 @@ local Localization = {
 				LOOTFRAME = "Bottino",
 				EATORDRINK = "Sta mangiando o bevendo",
 				MISC = "Varie:",		
+				DISABLEREGULARFRAMES = "Nascondi i frame standard",
+				DISABLEREGULARFRAMESTOOLTIP = "Funziona solo con Meta Engine\nNasconde il gruppo di frame nell'angolo in alto a sinistra",				
 				DISABLEROTATIONDISPLAY = "Nascondi|Mostra la rotazione",
 				DISABLEROTATIONDISPLAYTOOLTIP = "Nasconde il gruppo, che generalmente siu trova al\ncentro in basso dello schermo",
 				DISABLEBLACKBACKGROUND = "Nascondi lo sfondo nero", 
@@ -3301,7 +3311,9 @@ local Localization = {
 				SPELLISTARGETINGTOOLTIP = "Ejemplo: Blizzard, Salto heroico, Trampa de congelación",
 				LOOTFRAME = "Frame de botín",
 				EATORDRINK = "Está comiendo o bebiendo",
-				MISC = "Misc:",		
+				MISC = "Misc:",	
+				DISABLEREGULARFRAMES = "Ocultar marcos estándar",
+				DISABLEREGULARFRAMESTOOLTIP = "Solo funciona con Meta Engine\nOculta el grupo de marcos en la esquina superior izquierda",				
 				DISABLEROTATIONDISPLAY = "Esconder mostrar rotación",
 				DISABLEROTATIONDISPLAYTOOLTIP = "Esconder el grupo, que está ubicado normalmente en la\nparte inferior central de la pantalla",
 				DISABLEBLACKBACKGROUND = "Esconder fondo negro", 
@@ -3909,6 +3921,8 @@ local Localization = {
 				LOOTFRAME = "LootFrame",
 				EATORDRINK = "Está comendo ou bebendo",
 				MISC = "Misc:",		
+				DISABLEREGULARFRAMES = "Ocultar molduras padrão",
+				DISABLEREGULARFRAMESTOOLTIP = "Funciona apenas com o Meta Engine\nOculta o grupo de molduras no canto superior esquerdo",				
 				DISABLEROTATIONDISPLAY = "Esconder display da rotação",
 				DISABLEROTATIONDISPLAYTOOLTIP = "Esconde o grupo, que está normalmente no\ncentro abaixo da sua tela",
 				DISABLEBLACKBACKGROUND = "Esconder o fundo preto", 
@@ -4631,6 +4645,7 @@ local Factory = {
 		CheckSpellIsTargeting = true, 
 		CheckLootFrame = true, 	
 		CheckEatingOrDrinking = true,
+		DisableRegularFrames = false,
 		DisableRotationDisplay = false,
 		DisableBlackBackground = false,
 		DisablePrint = false,
@@ -10865,6 +10880,12 @@ local OnToggleHandler		= {
 		LOSCheck			= function() 
 			LineOfSight:Initialize() 
 		end,
+		CVars 				= function()
+			TMW:Fire("TMW_ACTION_CVARS_CHANGED")
+		end,
+		DisableRegularFrames = function()
+			TMW:Fire("TMW_ACTION_UPDATE_FRAMES_OPACITY")
+		end,
 	},
 	[2]						= {
 		-- Toggles 
@@ -10952,6 +10973,11 @@ local OnToggleHandler		= {
 		end,
 	},
 	[9]						= {
+		Framework			= function()
+			TMW:Fire("TMW_ACTION_METAENGINE_RECONFIGURE")
+			TMW:Fire("TMW_ACTION_METAENGINE_REFRESH_UI")
+			TMW:Fire("TMW_ACTION_FRAMEWORK_CHANGED")
+		end,
 		MetaEngine			= function()
 			TMW:Fire("TMW_ACTION_METAENGINE_REFRESH_UI")
 		end,
@@ -11386,7 +11412,7 @@ function Action.ToggleMainUI()
 				end 
 			else 
 				TMWdb:SetProfile(val)
-				Action.ToggleMainUI()
+				C_UI.Reload()
 			end 
 		end		
 		MainUI.Profiles.SortDSC = function(a, b)
@@ -12743,20 +12769,21 @@ function Action.ToggleMainUI()
 			Misc:SetJustifyH("CENTER")
 			Misc:SetFontSize(14)
 			
-			local DisableRotationDisplay = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEROTATIONDISPLAY"])
-			DisableRotationDisplay:SetChecked(tabDB.DisableRotationDisplay)
-			DisableRotationDisplay:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-			DisableRotationDisplay:SetScript("OnClick", function(self, button, down)	
+			local DisableRegularFrames = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEREGULARFRAMES"])
+			DisableRegularFrames:SetChecked(tabDB.DisableRegularFrames)			
+			DisableRegularFrames:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableRegularFrames:SetScript("OnClick", function(self, button, down)	
 				if button == "LeftButton" then 
-					tabDB.DisableRotationDisplay = not tabDB.DisableRotationDisplay
-					self:SetChecked(tabDB.DisableRotationDisplay)	
-					Action.Print(L["TAB"][tabName]["DISABLEROTATIONDISPLAY"] .. ": ", tabDB.DisableRotationDisplay)
+					tabDB.DisableRegularFrames = not tabDB.DisableRegularFrames
+					self:SetChecked(tabDB.DisableRegularFrames)	
+					Action.Print(L["TAB"][tabName]["DISABLEREGULARFRAMES"] .. ": ", tabDB.DisableRegularFrames)
+					TMW:Fire("TMW_ACTION_UPDATE_FRAMES_OPACITY")
 				elseif button == "RightButton" then 
-					Action.CraftMacro(L["TAB"][tabName]["DISABLEROTATIONDISPLAY"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableRotationDisplay", "]] .. L["TAB"][tabName]["DISABLEROTATIONDISPLAY"] .. [[: "})]])	
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEREGULARFRAMES"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableRegularFrames", "]] .. L["TAB"][tabName]["DISABLEREGULARFRAMES"] .. [[: "})]])	
 				end 
 			end)
-			DisableRotationDisplay.Identify = { Type = "Checkbox", Toggle = "DisableRotationDisplay" }
-			StdUi:FrameTooltip(DisableRotationDisplay, strjoin("\n\n", L["TAB"][tabName]["DISABLEROTATIONDISPLAYTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMRIGHT", true)	
+			DisableRegularFrames.Identify = { Type = "Checkbox", Toggle = "DisableRegularFrames" }
+			StdUi:FrameTooltip(DisableRegularFrames, strjoin("\n\n", L["TAB"][tabName]["DISABLEREGULARFRAMESTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMLEFT", true)	
 			
 			local DisableBlackBackground = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEBLACKBACKGROUND"])
 			DisableBlackBackground:SetChecked(tabDB.DisableBlackBackground)			
@@ -12832,20 +12859,20 @@ function Action.ToggleMainUI()
 			DisableRotationModes.Identify = { Type = "Checkbox", Toggle = "DisableRotationModes" }	
 			StdUi:FrameTooltip(DisableRotationModes, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMLEFT", true)	
 			
-			local DisableSounds = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLESOUNDS"])
-			DisableSounds:SetChecked(tabDB.DisableSounds)		
-			DisableSounds:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-			DisableSounds:SetScript("OnClick", function(self, button, down)	
+			local DisableRotationDisplay = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLEROTATIONDISPLAY"])
+			DisableRotationDisplay:SetChecked(tabDB.DisableRotationDisplay)
+			DisableRotationDisplay:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableRotationDisplay:SetScript("OnClick", function(self, button, down)	
 				if button == "LeftButton" then 
-					tabDB.DisableSounds = not tabDB.DisableSounds
-					self:SetChecked(tabDB.DisableSounds)	
-					Action.Print(L["TAB"][tabName]["DISABLESOUNDS"] .. ": ", tabDB.DisableSounds)
+					tabDB.DisableRotationDisplay = not tabDB.DisableRotationDisplay
+					self:SetChecked(tabDB.DisableRotationDisplay)	
+					Action.Print(L["TAB"][tabName]["DISABLEROTATIONDISPLAY"] .. ": ", tabDB.DisableRotationDisplay)
 				elseif button == "RightButton" then 
-					Action.CraftMacro(L["TAB"][tabName]["DISABLESOUNDS"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableSounds", "]] .. L["TAB"][tabName]["DISABLESOUNDS"] .. [[: "})]])	
+					Action.CraftMacro(L["TAB"][tabName]["DISABLEROTATIONDISPLAY"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableRotationDisplay", "]] .. L["TAB"][tabName]["DISABLEROTATIONDISPLAY"] .. [[: "})]])	
 				end 
 			end)
-			DisableSounds.Identify = { Type = "Checkbox", Toggle = "DisableSounds" }
-			StdUi:FrameTooltip(DisableSounds, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMRIGHT", true)	
+			DisableRotationDisplay.Identify = { Type = "Checkbox", Toggle = "DisableRotationDisplay" }
+			StdUi:FrameTooltip(DisableRotationDisplay, strjoin("\n\n", L["TAB"][tabName]["DISABLEROTATIONDISPLAYTOOLTIP"], L["TAB"]["RIGHTCLICKCREATEMACRO"]), nil, "BOTTOMRIGHT", true)							
 
 			local HideOnScreenshot = StdUi:Checkbox(anchor, L["TAB"][tabName]["HIDEONSCREENSHOT"])
 			HideOnScreenshot:SetChecked(tabDB.HideOnScreenshot)	
@@ -12878,6 +12905,21 @@ function Action.ToggleMainUI()
 			DisableAddonsCheck.Identify = { Type = "Checkbox", Toggle = "DisableAddonsCheck" }		
 			StdUi:FrameTooltip(DisableAddonsCheck, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMRIGHT", true)		
 			
+			local DisableSounds = StdUi:Checkbox(anchor, L["TAB"][tabName]["DISABLESOUNDS"])
+			DisableSounds:SetChecked(tabDB.DisableSounds)		
+			DisableSounds:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+			DisableSounds:SetScript("OnClick", function(self, button, down)	
+				if button == "LeftButton" then 
+					tabDB.DisableSounds = not tabDB.DisableSounds
+					self:SetChecked(tabDB.DisableSounds)	
+					Action.Print(L["TAB"][tabName]["DISABLESOUNDS"] .. ": ", tabDB.DisableSounds)
+				elseif button == "RightButton" then 
+					Action.CraftMacro(L["TAB"][tabName]["DISABLESOUNDS"], [[/run Action.SetToggle({]] .. tabName .. [[, "DisableSounds", "]] .. L["TAB"][tabName]["DISABLESOUNDS"] .. [[: "})]])	
+				end 
+			end)
+			DisableSounds.Identify = { Type = "Checkbox", Toggle = "DisableSounds" }
+			StdUi:FrameTooltip(DisableSounds, L["TAB"]["RIGHTCLICKCREATEMACRO"], nil, "BOTTOMRIGHT", true)	
+			
 			local CVarsItems = {
 				{ text = "Contrast", 							value = 1 },
 				{ text = "Brightness", 							value = 2 },
@@ -12904,6 +12946,7 @@ function Action.ToggleMainUI()
 					if tabDB.CVars[i] ~= v:GetChecked() then
 						tabDB.CVars[i] = v:GetChecked()
 						Action.Print("CVar - " .. CVarsItems[i].text .. ": ", tabDB.CVars[i])
+						TMW:Fire("TMW_ACTION_CVARS_CHANGED")
 					end 				
 				end 				
 			end				
@@ -12949,11 +12992,11 @@ function Action.ToggleMainUI()
 			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(CheckMount, CheckDeadOrGhostTarget, { column = "even" })	
 			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(CheckCombat, CheckEatingOrDrinking, { column = "even" })	
 			PauseChecksPanel:AddRow({ margin = { top = -15 } }):AddElement(Misc)		
-			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableRotationDisplay, DisableBlackBackground, { column = "even" })	
+			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableRegularFrames, DisableBlackBackground, { column = "even" })	
 			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisablePrint, DisableMinimap, { column = "even" })			
 			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableClassPortraits, DisableRotationModes, { column = "even" })		
-			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableSounds, HideOnScreenshot, { column = "even" })	
-			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableAddonsCheck, StdUi:LayoutSpace(anchor), { column = "even" })	
+			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableRotationDisplay, HideOnScreenshot, { column = "even" })	
+			PauseChecksPanel:AddRow({ margin = { top = -10 } }):AddElements(DisableAddonsCheck, DisableSounds, { column = "even" })	
 			PauseChecksPanel:AddRow({ margin = { top = 0 } }):AddElement(CVars, { column = 12 })
 			PauseChecksPanel:DoLayout()		
 			-- Add empty space for scrollframe after all elements 
@@ -13329,34 +13372,34 @@ function Action.ToggleMainUI()
 				["BAG_UPDATE_COOLDOWN"]			= true,
 				["PLAYER_EQUIPMENT_CHANGED"]	= true,
 				["UNIT_INVENTORY_CHANGED"]		= true,
-				["UI_INFO_MESSAGE"]				= true,
-				--["UNIT_PET"] 					= true, -- Replaced by callbacks "TMW_ACTION_PET_LIBRARY_MAIN_PET_UP" and "TMW_ACTION_PET_LIBRARY_MAIN_PET_DOWN"
-				--["PLAYER_LEVEL_UP"]			= true,	-- Retail: Replaced by callback "TMW_ACTION_SPELL_BOOK_CHANGED"	
+				["UI_INFO_MESSAGE"]				= not StdUi.isClassic, -- Classic: No war mode 
+				--["PLAYER_LEVEL_UP"]			= true,	-- Retail: Replaced by callback TMW_ACTION_SPELL_BOOK_CHANGED | Classic: Spells are learn able only by teachers
+				--["UNIT_PET"] 					= true, -- Replaced by callbacks TMW_ACTION_PET_LIBRARY_MAIN_PET_UP and TMW_ACTION_PET_LIBRARY_MAIN_PET_DOWN which are represented by TMW_ACTION_SPELL_BOOK_CHANGED				
 			}
 			local AutoHiddenToggle				= function()
 				local script 					= ScrollTable:GetScript("OnEvent")
 				if Action.GetToggle(tabName, "AutoHidden") then 
 					-- Registers events 
-					for k in pairs(AutoHiddenEvents) do 
-						ScrollTable:RegisterEvent(k)
+					for k, v in pairs(AutoHiddenEvents) do 
+						if v then
+							ScrollTable:RegisterEvent(k)
+						end
 					end 
 					
-					-- Registers callback (Retail: SpellLevel)					
+					-- Registers callback (Classic: Callback fires in the next priority talents -> spellbook)				
 					TMW:RegisterCallback("TMW_ACTION_SPELL_BOOK_CHANGED", 			script)
-					TMW:RegisterCallback("TMW_ACTION_PET_LIBRARY_MAIN_PET_UP", 		script)
-					TMW:RegisterCallback("TMW_ACTION_PET_LIBRARY_MAIN_PET_DOWN", 	script)
 				else 
 					-- Unregisters events 
-					for k in pairs(AutoHiddenEvents) do 
-						ScrollTable:UnregisterEvent(k)
+					for k, v in pairs(AutoHiddenEvents) do 
+						if v then
+							ScrollTable:UnregisterEvent(k)
+						end
 					end 
 					
 					-- Unregisters callback 
 					TMW:UnregisterCallback("TMW_ACTION_SPELL_BOOK_CHANGED", 		script)
-					TMW:UnregisterCallback("TMW_ACTION_PET_LIBRARY_MAIN_PET_UP", 	script)
-					TMW:UnregisterCallback("TMW_ACTION_PET_LIBRARY_MAIN_PET_DOWN",  script)
 				end 
-			end 
+			end
 			
 			-- UI: Scroll
 			Scroll 						= setmetatable({
@@ -17629,24 +17672,38 @@ function Action.ToggleMainUI()
 				{ text = "Meta Engine", value = "MetaEngine" },
 			--	{ text = "v2", value = "v2" },				
 			}, specDB.Framework)	
+			PanelFramework.Category:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 			PanelFramework.Category:SetScript("OnClick", function(self, button)
 				if InCombatLockdown() then
-					if self.optsFrame:IsVisible() then 
+					if self.optsFrame:IsVisible() then
 						self:ToggleOptions()
-					end 
-				else
-					self:ToggleOptions()
+					end
+					
+					return
 				end
+					
+				if button == "LeftButton" then
+					self:ToggleOptions()					
+				elseif button == "RightButton" then 
+					local name = L["TAB"][tabName]["FRAMEWORK"]:gsub("^%[(.+)%](%s?)", "")
+					Action.CraftMacro(name, [[/run Action.SetToggle({]] .. tabName .. [[, "Framework", "]] .. name .. [[: "}, "]] .. specDB.Framework .. [[")]])	
+				end 
 			end)
 			PanelFramework.Category.OnValueChanged = function(self, value)
+				local hasChanges = specDB.Framework ~= value
 				specDB.Framework = value
 				MetaEnginePanel:SetShown(value == "MetaEngine")
 				if value == "MetaEngine" then
 					MetaEnginePanel.ScrollTable.MakeUpdate()
 				end
 				TMW:Fire("TMW_ACTION_METAENGINE_RECONFIGURE")
+				
+				if hasChanges then
+					TMW:Fire("TMW_ACTION_FRAMEWORK_CHANGED")
+				end
 			end
-			PanelFramework.Category.text:SetJustifyH("CENTER")				
+			PanelFramework.Category.text:SetJustifyH("CENTER")			
+			PanelFramework.Category.Identify = { Type = "Dropdown", Toggle = "Framework" }			
 			
 			------------------------------------- 
 			-- MetaEngine

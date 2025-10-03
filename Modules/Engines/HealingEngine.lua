@@ -251,8 +251,12 @@ frame.Colors 							= {
 }
 function frame:SetColor(unitID)
 	local unit = unitID or none
-	if (self.unit ~= unit or self.mode ~= isFocusHealing) and self.Colors[unit] then 	
-		self.texture:SetColorTexture(unpack(self.Colors[unit]))
+	if (self.unit ~= unit or self.mode ~= isFocusHealing) and self.Colors[unit] then
+		local colorR, colorG, colorB, colorA = unpack(self.Colors[unit])
+		if A.MetaEngine and A.MetaEngine:IsHealthy() and GetToggle(1, "DisableRegularFrames") then
+			colorA = 0
+		end
+		self.texture:SetColorTexture(colorR, colorG, colorB, colorA)
 		self.unit = unit
 		self.mode = isFocusHealing
 		TMW:Fire("TMW_ACTION_METAENGINE_UPDATE", "HealingEngine", isFocusHealing and "focus" or "target", unit)

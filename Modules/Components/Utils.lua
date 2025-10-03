@@ -440,21 +440,42 @@ TMW:RegisterDatabaseDefaults{
 -------------------------------------------------------------------------------
 -- TalentMap  
 -------------------------------------------------------------------------------
+local function AreTablesEqual(t1, t2)
+	for k, v in pairs(t1) do if t2[k] ~= v then return false end end	
+	for k, v in pairs(t2) do if t1[k] ~= v then return false end end	
+	return true
+end
+
+local function MirrorTables(t1, t2)
+	wipe(t2)
+	for k, v in pairs(t1) do
+		t2[k] = v
+	end
+end
+
 if BuildToC < 50500 then 
 	-- Classic - Cataclysm
 	local TalentMap 										= {}; A.TalentMap = TalentMap
+	local TalentMapMirror									= {}
 	local GetNumTalentTabs, GetNumTalents, GetTalentInfo 	= _G.GetNumTalentTabs, _G.GetNumTalents, _G.GetTalentInfo
 	local function TalentMapUpdate()
 		wipe(TalentMap)
+		local _, name, rank
 		for tab = 1, GetNumTalentTabs() do
 			for talent = 1, GetNumTalents(tab) do
-				local name, _, _, _, rank = GetTalentInfo(tab, talent)
+				name, _, _, _, rank = GetTalentInfo(tab, talent)
 				if name then
 					TalentMap[name] = rank or 0
 				end
 			end
 		end
-		TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")
+		
+		-- This part of code avoids double reconfigure load on Meta Engine
+		-- Because on pet (summon) event (which is doubled) PLAYER_TALENT_UPDATE fired twice
+		if not AreTablesEqual(TalentMap, TalentMapMirror) then
+			MirrorTables(TalentMap, TalentMapMirror)
+			TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")
+		end
 		Listener:Remove("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD")
 	end
 
@@ -464,6 +485,7 @@ if BuildToC < 50500 then
 elseif BuildToC < 100000 then
 	-- MOP - Shadowlands
 	local TalentMap 					= {}; A.TalentMap = TalentMap
+	local TalentMapMirror				= {}
 	local C_SpecializationInfo			= _G.C_SpecializationInfo
 	local GetTalentInfo 				= C_SpecializationInfo and C_SpecializationInfo.GetTalentInfo or _G.GetTalentInfo
 	local GetPvpTalentInfoByID 			= _G.GetPvpTalentInfoByID
@@ -521,7 +543,12 @@ elseif BuildToC < 100000 then
 			end
 		end	
 		
-		TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")
+		-- This part of code avoids double reconfigure load on Meta Engine
+		-- Because on pet (summon) event (which is doubled) PLAYER_TALENT_UPDATE fired twice		
+		if not AreTablesEqual(TalentMap, TalentMapMirror) then
+			MirrorTables(TalentMap, TalentMapMirror)
+			TMW:Fire("TMW_ACTION_TALENT_MAP_UPDATED")
+		end
 		Listener:Remove("ACTION_EVENT_UTILS_TALENT_MAP", "PLAYER_ENTERING_WORLD")
 	end
 
@@ -836,7 +863,32 @@ TMW:RegisterCallback("TMW_ACTION_PLAYER_SPECIALIZATION_CHANGED", function()
 	end 
 end) 
 
-local isShownOnce
+local Framework	 		 = CreateMiscFrame(nil, "TOPLEFT", 163, -4)
+function Framework:UpdateColor()
+	local current = A.IsInitialized and GetToggle(9, "Framework") or "v1"
+	if Framework.lastknown ~= current then
+		Framework.lastknown = current
+		if not Framework:IsShown() then
+            Framework:Show()
+        end	
+		
+		if current == "v1" then
+			Framework.texture:SetColorTexture(ActionDataUniversalColor[1]())
+		elseif current == "v2" then
+			Framework.texture:SetColorTexture(ActionDataUniversalColor[2]())
+		elseif current == "MetaEngine" then
+			Framework.texture:SetColorTexture(ActionDataUniversalColor[3]())		
+		end
+
+		TMW:Fire("TMW_ACTION_UPDATE_FRAMES_OPACITY")
+		TimerSetRefreshAble("Framework:Hide", 20, function() Framework:Hide() end)
+	end
+end
+TMW:RegisterCallback("TMW_ACTION_PLAYER_SPECIALIZATION_CHANGED", Framework.UpdateColor)
+TMW:RegisterCallback("TMW_ACTION_IS_INITIALIZED", Framework.UpdateColor)
+TMW:RegisterCallback("TMW_ACTION_ON_PROFILE_POST", Framework.UpdateColor)
+TMW:RegisterCallback("TMW_ACTION_FRAMEWORK_CHANGED", Framework.UpdateColor)
+
 local function UpdateFrames()
     if not TellMeWhen_Group1 or not strfind(strlowerCache(TellMeWhen_Group1.Name), "shown main") then 
         if BlackBackground:IsShown() then
@@ -851,8 +903,16 @@ local function UpdateFrames()
 			Character:Hide()
 		end 		
 		
+		if Framework:IsShown() then 
+			Framework:Hide()
+		end
+		
         return 
     end
+	
+	----------------------
+	-- SCALE CONTROLLER --
+	--
 	
 	local myheight = select(2, GetPhysicalScreenSize())
 	-- The code below is a workout for BFA and less expansions because GetPhysicalScreenSize was broken
@@ -876,7 +936,7 @@ local function UpdateFrames()
     local group1 = TellMeWhen_Group1:GetEffectiveScale()
 	
 	-- "Shown Main"
-    if group1 ~= nil and group1 ~= myscale1 then
+    if group1 and group1 ~= myscale1 then
         TellMeWhen_Group1:SetParent(nil)
         TellMeWhen_Group1:SetScale(myscale1) 
         TellMeWhen_Group1:SetFrameStrata("TOOLTIP")
@@ -905,9 +965,35 @@ local function UpdateFrames()
         Character:SetScale((0.71111112833023 * (1080 / myheight)) / (Character:GetParent() and Character:GetParent():GetEffectiveScale() or 1))	
 		TimerSetRefreshAble("Character:Hide", 20, function() Character:Hide() end)
 	end 
+	
+	-- Framework
+	if Framework then 
+		if not Framework:IsShown() then
+            Framework:Show()
+        end
+        Framework:SetScale((0.71111112833023 * (1080 / myheight)) / (Framework:GetParent() and Framework:GetParent():GetEffectiveScale() or 1))	
+		TimerSetRefreshAble("Framework:Hide", 20, function() Framework:Hide() end)
+	end
+	
+	------------------------
+	-- OPACITY CONTROLLER --
+	-- Update opacity only for v1 frames, skip other frames as they still can be used for AutoProfile
+	--
+	
+	local alpha = A.MetaEngine and A.MetaEngine:IsHealthy() and GetToggle(1, "DisableRegularFrames") and 0 or 1
+	
+	if group1 and TellMeWhen_Group1:GetAlpha() ~= alpha then
+		TellMeWhen_Group1:SetAlpha(alpha)
+	end
+
+	if TargetColor and TargetColor:GetAlpha() ~= alpha then
+		TargetColor:SetAlpha(alpha)
+	end	
 end
 
 local function UpdateCVAR()
+	if not A.IsInitialized then return end
+	
 	local CVars = GetToggle(1, "CVars")
 	
     if CVars[1] and GetCVar("Contrast") ~= "50" then 
@@ -995,6 +1081,7 @@ local function UpdateCVAR()
 		end		
 	end
 end
+TMW:RegisterCallback("TMW_ACTION_CVARS_CHANGED", UpdateCVAR)
 
 local function ConsoleUpdate()
 	UpdateCVAR()
@@ -1008,6 +1095,8 @@ TMW:RegisterSelfDestructingCallback("TMW_ACTION_IS_INITIALIZED_PRE", function()
 			UpdateFrames()  
 		end
     end)
+	
+	TMW:RegisterCallback("TMW_ACTION_UPDATE_FRAMES_OPACITY", 		UpdateFrames	)
 	
 	Listener:Add("ACTION_EVENT_UTILS", "DISPLAY_SIZE_CHANGED", 		ConsoleUpdate	)
 	Listener:Add("ACTION_EVENT_UTILS", "UI_SCALE_CHANGED", 			ConsoleUpdate	)
@@ -1075,6 +1164,7 @@ end
 --    charges, maxCharges, chargeStart, chargeDur
 --    stack, stack,
 --    iName			
+local paramTable = {}
 local function TMWAPI(icon, ...)
     local attributesString, param = ...
 	
@@ -1083,7 +1173,8 @@ local function TMWAPI(icon, ...)
 			-- Color if not colored (Alpha will show it)
 			if type(param) == "table" and param["Color"] then 
 				if icon.attributes.calculatedState.Color ~= param["Color"] then 
-					icon:SetInfo(attributesString, {Color = param["Color"], Alpha = param["Alpha"], Texture = param["Texture"]})
+					paramTable.Color, paramTable.Alpha, paramTable.Texture = param["Color"], param["Alpha"], param["Texture"]
+					icon:SetInfo(attributesString, paramTable)
 				end
 				return 
 			end 
@@ -1100,7 +1191,7 @@ local function TMWAPI(icon, ...)
 		if attributesString == "texture" and type(param) == "number" then         
 			if (icon.attributes.calculatedState.Color ~= "ffffffff" or icon.attributes.realAlpha == 0) then 
 				-- Show + Texture if hidden
-				icon:SetInfo("state; " .. attributesString, CONST.TMW_DEFAULT_STATE_SHOW, param)
+				icon:SetInfo(strjoin("", "state; ", attributesString), CONST.TMW_DEFAULT_STATE_SHOW, param)
 			elseif icon.attributes.texture ~= param then 
 				-- Texture if not applied        
 				icon:SetInfo(attributesString, param)
