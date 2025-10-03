@@ -449,7 +449,7 @@ do -- create UI
 			else 
 				panel.titlePanel.label:SetText((CUSTOM.USERPANEL and (CUSTOM.USERPANEL[CL] or CUSTOM.USERPANEL["enUS"])) or L.PROFILESESSION.USERPANEL)
 				
-				local output_message = private:GetUserKey(private.affected_profiles[private.profile]) or "Use ProfileSession:Setup(key,config) to get key here"
+				local output_message = private:GetUserKey(private.affected_profiles[private.profile]) or "Use ProfileSession:Setup(dev_key, dev_config) to get key here"
 				
 				if private.status then --> authorized
 					if private.session == 0 then --> expired
@@ -616,12 +616,15 @@ TMW:RegisterSelfDestructingCallback("TMW_ACTION_IS_INITIALIZED_PRE", function(ca
 		if private.profile then
 			-- Enable 
 			local current_seconds = private.Server:GetTimeInSeconds() --> current UTC time in seconds 
-			for dev_key, dev_config in pairs(private.data) do 
-				private.locales = rawget(dev_config, "locales") or private.locales
+			local dev_key = affected_profiles[private.profile]
+			local dev_config = private.data[dev_key]
+
+			if dev_config then
+				private.locales = dev_config.locales
 				if private.locales and not rawget(private.locales, "isUnlinked") then 
 					private.locales:__unlink()
-				end 			
-			
+				end
+
 				local user_key = private:GetUserKey(dev_key)
 				assert(type(user_key) == "function" or type(user_key) == "string", format("dev_key: '%s'\ndev_config.users['%s'] must be string! This type is '%s'.", toStr(dev_key), toStr(user_key), type(user_key)))
 				assert(type(user_key) == "function" or #user_key <= 64, format("dev_key '%s'\ndev_config.users['%s'] must have up to 64 bytes length", toStr(dev_key), toStr(user_key)))
@@ -646,10 +649,9 @@ TMW:RegisterSelfDestructingCallback("TMW_ACTION_IS_INITIALIZED_PRE", function(ca
 						private.session = math_max(expiration_seconds - current_seconds, 0)
 					end 
 					
-					if private.session > 0 and private.profile == A.CurrentProfile and not private.disabled_profiles[A.CurrentProfile] then
+					if private.session > 0 and not private.disabled_profiles[private.profile] then
 						private.expiration = current_seconds + private.session
 						private:RunSession()
-						return
 					else 
 						private.session = 0
 					end 
@@ -1070,73 +1072,85 @@ function ProfileSession:Setup(dev_key, dev_config, reset_trial)
 		dev_config
 			@table read-only metatable
 			setmetatable({}, {
-				__index = {
-					-- required
-					-- @table used to sign your profiles
-					profiles = {
-						["profileName1"] = true,
-						["profileName2"] = true,
-					},
-					
-					-- required
-					-- @table read-only metatable
-					users = setmetatable({}, {
-						__index = {
-							-- @table read-only metatable with 'user_key' authorization
-							["user_key1"] = setmetatable({}, {						-- @string hexadecimal representation of blake3 hash of 'user_key' encrypted by 'dev_key'
-								__index = {
-									["profileName1"] = "2022-12-31-23-59-59", 		-- @string expiration date in format 'YYYY-MM-DD-HH-MM-SS' (UTC) 
-									["profileName2"] = "trial-07", 					-- @string expiration date in format 'trial-DD'	(UTC), timestamp of trial session will be started as soon as profile will be loaded on client
-								},
-								__newindex = function() error("Attempt to modify 'user_key' read-only table", 4) end,
-								__metatable = true,					
-							}),
-							
-							-- @table read-only metatable without 'user_key' authorization e.g. for any user, can be used as fallback to free/beta/test profiles for everyone
-							["*"] = setmetatable({}, {								-- ["*"] is special key, means for any 'user_key' not presented in 'users' table
-								__index = {
-									["profileName1"] = "2022-12-31-23-59-59",
-									["profileName2"] = "trial-07",
-								},
-								__newindex = function() error("Attempt to modify '[\"*\"]' read-only table", 4) end,
-								__metatable = true,								
-							}),
+				__index = function(t, k)
+					local t = {
+						-- required
+						-- @table used to sign your profiles
+						profiles = {
+							["profileName1"] = true,
+							["profileName2"] = true,
 						},
-						__newindex = function() error("Attempt to modify 'users' read-only table", 4) end,
-						__metatable = true,						
-					}),
-					
-					-- optional
-					-- @table, if omitted it will use default locales, see Action.lua > Localization table
-					locales = { 
-						EXPIREDMESSAGE = {
-							-- required 
-							["enUS"] = "Your subscription for %s profile is expired!\nPlease contact profile developer!", -- %s will be formatted by profile name; %s is required in the string
-							-- optional 
-							["ruRU"] = "Ваша подписка на %s профиль истекла!\nПожалуйста, обратитесь к разработчику профиля!",
+						
+						-- required
+						-- @table read-only metatable
+						users = setmetatable({}, {
+							__index = function(t, k)
+								local t = {
+									-- @table read-only metatable with 'user_key' authorization
+									["user_key1"] = setmetatable({}, {						-- @string hexadecimal representation of blake3 hash of 'user_key' encrypted by 'dev_key'
+										__index = function(t, k)
+											local t = {
+												["profileName1"] = "2022-12-31-23-59-59", 	-- @string expiration date in format 'YYYY-MM-DD-HH-MM-SS' (UTC) 
+												["profileName2"] = "trial-07", 				-- @string expiration date in format 'trial-DD'	(UTC), timestamp of trial session will be started as soon as profile will be loaded on client
+											}
+											return t[k]
+										end,
+										__newindex = function() error("Attempt to modify 'user_key' read-only table", 4) end,
+										__metatable = true,					
+									}),
+									
+									-- @table read-only metatable without 'user_key' authorization e.g. for any user, can be used as fallback to free/beta/test profiles for everyone
+									["*"] = setmetatable({}, {								-- ["*"] is special key, means for any 'user_key' not presented in 'users' table
+										__index = function(t, k)
+											local t = {
+												["profileName1"] = "2022-12-31-23-59-59",
+												["profileName2"] = "trial-07",
+											}
+											return t[k]
+										end,
+										__newindex = function() error("Attempt to modify '[\"*\"]' read-only table", 4) end,
+										__metatable = true,								
+									}),
+								}
+								return t[k]
+							end,
+							__newindex = function() error("Attempt to modify 'users' read-only table", 4) end,
+							__metatable = true,						
+						}),
+						
+						-- optional
+						-- @table, if omitted it will use default locales, see Action.lua > Localization table
+						locales = { 
+							EXPIREDMESSAGE = {
+								-- required 
+								["enUS"] = "Your subscription for %s profile is expired!\nPlease contact profile developer!", -- %s will be formatted by profile name; %s is required in the string
+								-- optional 
+								["ruRU"] = "Ваша подписка на %s профиль истекла!\nПожалуйста, обратитесь к разработчику профиля!",
+							},
+							AUTHMESSAGE = {
+								-- required 
+								["enUS"] = "Thank you for using premium profile\nTo authorize your key please contact profile developer!",
+								-- optional 
+								["ruRU"] = "Спасибо за использование премиум профиля\nДля авторизации вашего ключа, пожалуйста, обратитесь к разработчику профиля!",
+							},
+							REMAINING = {
+								-- required 
+								["enUS"] = "[%s] remains %d secs", -- %s will be formatted by profile name, %d will be formatted by remaining session time 
+																   -- e.g. output example "[profileName] remains 200 secs", %s and %d are required in the string
+								-- optional 
+								["ruRU"] = "[%s] осталось %d сек.",
+							},
+							DISABLED = {
+								-- required 
+								["enUS"] = "[%s] |cffff0000expired session!|r", -- %s will be formatted by profile name; %s is required in the string; |cffff0000 "is read color here" |r
+								-- optional 
+								["ruRU"] = "[%s] |cffff0000истекла сессия!|r",
+							},
+							-- ... and so on, you can replace all localization keys, for more details see Action.lua -> Localization.enUS.PROFILESESSION
 						},
-						AUTHMESSAGE = {
-							-- required 
-							["enUS"] = "Thank you for using premium profile\nTo authorize your key please contact profile developer!",
-							-- optional 
-							["ruRU"] = "Спасибо за использование премиум профиля\nДля авторизации вашего ключа, пожалуйста, обратитесь к разработчику профиля!",
-						},
-						REMAINING = {
-							-- required 
-							["enUS"] = "[%s] remains %d secs", -- %s will be formatted by profile name, %d will be formatted by remaining session time 
-															   -- e.g. output example "[profileName] remains 200 secs", %s and %d are required in the string
-							-- optional 
-							["ruRU"] = "[%s] осталось %d сек.",
-						},
-						DISABLED = {
-							-- required 
-							["enUS"] = "[%s] |cffff0000expired session!|r", -- %s will be formatted by profile name; %s is required in the string; |cffff0000 "is read color here" |r
-							-- optional 
-							["ruRU"] = "[%s] |cffff0000истекла сессия!|r",
-						},
-						-- ... and so on, you can replace all localization keys, for more details see Action.lua -> Localization.enUS.PROFILESESSION
-					},
-				},
+					}
+					return t[k]
+				end,
 				__newindex = function() error("Attempt to modify 'dev_config' read-only table", 4) end,
 				__metatable = true,
 			})
@@ -1205,7 +1219,7 @@ function ProfileSession:Setup(dev_key, dev_config, reset_trial)
 	if dev_config.locales then
 		for label, localization in pairs(dev_config.locales) do 
 			assert(type(localization) == "table" and localization.enUS, format("dev_key: '%s'\ndev_config.locales['%s'] has incorrect format or type!", toStr(dev_key), toStr(label)))
-			
+
 			for lang, message in pairs(localization) do 
 				assert(type(message) == "string", format("dev_key: '%s'\ndev_config.locales['%s']['%s'] = '%s' has incorrect message format or type!", toStr(dev_key), toStr(label), toStr(lang), toStr(message)))
 				if label == "REMAINING" then 
@@ -1288,12 +1302,16 @@ Example:
 
 =================================================================
 					CHANGELOG
+2 Oct 2025
+• fixed dev_config.locales bug when installing multiple sessions
+• __index of metatable in def_secured_container has been changed to be function
+
 16 Sep 2025
 • syntax used in user container has been changed:
 - removed profiles, expiration keys
 - now ["user_key"] = { ["profileName"] = "expiration" }
 • added additional internal security and secure containers.
-• dev_config, user_keys, user_profiles no longer access able within lua.
+• user containers no longer access able within lua.
 • now each user can have unique expiration dates for each profile.
 • fixed miss typo in format for custom locales.
 • updated how-to examples.
@@ -1318,13 +1336,12 @@ How to get:
 ---					 Global Snippet							  ---
 -- This container will be used as part of integrity checks
 local function def_secured_container(index, name)
-	return
-		setmetatable({}, {
-			__index = index,
-			__newindex = function() error(("Attempt to modify read-only table of %s"):format(name or "secured container"), 4) end,
-			__metatable = true,
-		}),
-		index
+	local mt = {
+		__index = function(t, k) return index[k] end,
+		__newindex = function() error(("Attempt to modify read-only table of %s"):format(name or "secured container"), 4) end,
+		__metatable = true,
+	}
+	return setmetatable({}, mt), index
 end
 
 local public_dev_config, private_dev_config = def_secured_container({
@@ -1476,7 +1493,7 @@ TMW:RegisterSelfDestructingCallback("TMW_ACTION_IS_INITIALIZED", function(callba
 	
 	IS.user_key = ProfileSession:GetUserKey(dev_key)
 	
-	if IS.user_key and IS:CheckSum(public_dev_config) and IS:CheckSum(public_dev_config.users, public_users) then
+	if IS.user_key and IS:CheckSum(public_dev_config) and IS:CheckSum(public_dev_config.users, public_users) then -- If you use multiple :Setup across different snippets then use IS:CheckSum(public_dev_config.users) because public_dev_config.users never will be equal to public_users
 		local public_user_container = public_dev_config.users[IS.user_key]
 		local private_user_container = private_users[IS.user_key]
 		
