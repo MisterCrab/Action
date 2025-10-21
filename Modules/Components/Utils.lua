@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 -- TellMeWhen Utils
 -------------------------------------------------------------------------------
-local _G, assert, error, tostring, select, type, next, pairs, ipairs, setmetatable, table = 
-	  _G, assert, error, tostring, select, type, next, pairs, ipairs, setmetatable, table
+local _G, assert, error, tostring, select, type, next, math, pairs, ipairs, setmetatable, table, pcall = 
+	  _G, assert, error, tostring, select, type, next, math, pairs, ipairs, setmetatable, table, pcall 
 	  
 local sort 						= table.sort	  
 	  
@@ -488,51 +488,70 @@ elseif BuildToC < 100000 then
 	local TalentMapMirror				= {}
 	local C_SpecializationInfo			= _G.C_SpecializationInfo
 	local GetTalentInfo 				= C_SpecializationInfo and C_SpecializationInfo.GetTalentInfo or _G.GetTalentInfo
+	local GetActiveSpecGroup 			= C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup or _G.GetActiveSpecGroup or _G.GetActiveTalentGroup
+
+	local GetNumSpecializations 		= _G.GetNumSpecializations
+	if pcall(GetNumTalentTabs) then
+		GetNumSpecializations 			= _G.GetNumTalentTabs
+	end
+
 	local GetPvpTalentInfoByID 			= _G.GetPvpTalentInfoByID
 	local GetAllSelectedPvpTalentIDs 	= C_SpecializationInfo and C_SpecializationInfo.GetAllSelectedPvpTalentIDs	
 	
 	local MAX_NUM_TALENT_TIERS 			= _G.MAX_NUM_TALENT_TIERS
 	local NUM_TALENT_COLUMNS 			= _G.NUM_TALENT_COLUMNS
+	local MAX_NUM_TALENTS	 			= _G.MAX_NUM_TALENTS
 	
 	local talentInfoQuery = {}
 	local function TalentMapUpdate()
 		wipe(TalentMap)
 		wipe(talentInfoQuery)
+		talentInfoQuery.groupIndex = GetActiveSpecGroup()
 		
-		local talentInfo
-		for tier = 1, MAX_NUM_TALENT_TIERS do
-			for column = 1, NUM_TALENT_COLUMNS do
-				talentInfoQuery.tier = tier
-				talentInfoQuery.column = column
-				talentInfo = GetTalentInfo(talentInfoQuery)
-				-- isExceptional @boolean
-				-- talentID @number
-				-- known @boolean
-				-- maxRank @number
-				-- hasGoldBorder @boolean
-				-- tier @number
-				-- selected @boolean
-				-- icon @number
-				-- grantedByAura @boolean
-				-- meetsPreviewPrereq @boolean
-				-- previewRank @number
-				-- meetsPrereq @boolean
-				-- name @string
-				-- isPVPTalentUnlocked @boolean
-				-- column @number
-				-- rank @number
-				-- available @boolean
-				-- spellID @number	
-				if talentInfo and (talentInfo.selected or talentInfo.grantedByAura) then
-					TalentMap[talentInfo.name] = talentInfo.rank or 1
-					TalentMap[talentInfo.spellID] = talentInfo.rank or 1
-					TalentMap[talentInfo.talentID] = talentInfo.rank or 1
+		local talentInfo, rank		
+		for specIndex = 1, GetNumSpecializations() do
+			for tier = 1, MAX_NUM_TALENT_TIERS do
+				for column = 1, NUM_TALENT_COLUMNS do
+					for talentIndex = 1, MAX_NUM_TALENTS do
+						talentInfoQuery.tier = tier
+						talentInfoQuery.column = column
+						talentInfoQuery.specializationIndex = specIndex
+						talentInfoQuery.talentIndex = talentIndex 				
+						talentInfo = GetTalentInfo(talentInfoQuery)
+						-- isExceptional @boolean
+						-- talentID @number
+						-- known @boolean
+						-- maxRank @number
+						-- hasGoldBorder @boolean
+						-- tier @number
+						-- selected @boolean
+						-- icon @number
+						-- grantedByAura @boolean
+						-- meetsPreviewPrereq @boolean
+						-- previewRank @number
+						-- meetsPrereq @boolean
+						-- name @string
+						-- isPVPTalentUnlocked @boolean
+						-- column @number
+						-- rank @number
+						-- available @boolean
+						-- spellID @number	
+						
+						if talentInfo then
+							rank = talentInfo.rank
+							if talentInfo.selected or talentInfo.grantedByAura or (rank and rank > 0) then
+								TalentMap[talentInfo.name] = rank or 1
+								TalentMap[talentInfo.spellID] = rank or 1
+								TalentMap[talentInfo.talentID] = rank or 1
+							end
+						end
+					end
 				end
 			end
 		end
 		
 		local _, name, ids
-		if GetPvpTalentInfoByID then
+		if GetPvpTalentInfoByID and GetAllSelectedPvpTalentIDs then
 			ids = GetAllSelectedPvpTalentIDs()
 			for _, id in pairs(ids) do
 				_, name = GetPvpTalentInfoByID(id)
@@ -1379,3 +1398,86 @@ if A_GetCurrentSpecialization and TMW_GetCurrentSpecialization then
 		return TMW_GetCurrentSpecialization(...) or A_GetCurrentSpecialization()
 	end 
 end
+
+-------------------------------------------------------------------------------
+-- TMW UpdateTalentTextureCache fix
+-------------------------------------------------------------------------------
+if TELLMEWHEN_VERSIONNUMBER <= 11020501 then
+	local SpellTexturesMetaIndex = TMW.SpellTexturesMetaIndex
+	
+	local C_SpecializationInfo = _G.C_SpecializationInfo
+	local C_SpecializationInfo_GetTalentInfo = C_SpecializationInfo.GetTalentInfo
+	local C_SpecializationInfo_GetActiveSpecGroup = C_SpecializationInfo.GetActiveSpecGroup
+
+	local GetNumSpecializations = _G.GetNumSpecializations
+	if pcall(GetNumTalentTabs) then
+		GetNumSpecializations = _G.GetNumTalentTabs
+	end
+	
+	local GetTalentInfo = _G.GetTalentInfo
+	local GetNumTalents = _G.GetNumTalents
+	
+	local MAX_NUM_TALENT_TIERS = _G.MAX_NUM_TALENT_TIERS
+	local NUM_TALENT_COLUMNS = _G.NUM_TALENT_COLUMNS
+	local MAX_NUM_TALENTS = _G.MAX_NUM_TALENTS	
+	local MAX_TALENT_TIERS = _G.MAX_TALENT_TIERS
+	
+	local max = math.max
+	
+	local talentInfoQuery = {}
+	function TMW:UpdateTalentTextureCache()
+		if C_SpecializationInfo_GetTalentInfo and MAX_NUM_TALENT_TIERS and NUM_TALENT_COLUMNS then
+			-- Should handle all classic versions mop and below?
+			wipe(talentInfoQuery)
+			local activeGroup = C_SpecializationInfo_GetActiveSpecGroup()
+			for specIndex = 1, GetNumSpecializations() do
+				for tier = 1, MAX_NUM_TALENT_TIERS do
+					for column = 1, NUM_TALENT_COLUMNS do 
+						for talentIndex = 1, MAX_NUM_TALENTS do
+							talentInfoQuery.tier = tier
+							talentInfoQuery.column = column
+							talentInfoQuery.specializationIndex = specIndex 
+							talentInfoQuery.groupIndex = activeGroup
+							talentInfoQuery.talentIndex = talentIndex 
+							local talentInfo = C_SpecializationInfo.GetTalentInfo(talentInfoQuery)
+							if talentInfo then			
+								local name = talentInfo.name
+								local tex = talentInfo.fileID
+
+								local lower = name and strlowerCache[name]
+								
+								if lower then
+									SpellTexturesMetaIndex[lower] = tex
+								end
+							end
+						end
+					end
+				end
+			end
+		elseif MAX_TALENT_TIERS then
+			for tier = 1, MAX_TALENT_TIERS do
+				for column = 1, NUM_TALENT_COLUMNS do
+					local id, name, tex = GetTalentInfo(tier, column, 1)
+
+					local lower = name and strlowerCache[name]
+					
+					if lower then
+						SpellTexturesMetaIndex[lower] = tex
+					end
+				end
+			end
+		elseif GetNumTalentTabs then
+			for tab = 1, GetNumTalentTabs() do
+				for index = 1, GetNumTalents(tab) do
+					local name, iconTexture = GetTalentInfo(tab, index)
+
+					local lower = name and strlowerCache[name]
+					
+					if lower then
+						SpellTexturesMetaIndex[lower] = iconTexture
+					end
+				end
+			end
+		end
+	end
+end 
