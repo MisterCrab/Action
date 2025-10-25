@@ -491,7 +491,7 @@ elseif BuildToC < 100000 then
 	local GetActiveSpecGroup 			= C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup or _G.GetActiveSpecGroup or _G.GetActiveTalentGroup
 
 	local GetNumSpecializations 		= _G.GetNumSpecializations
-	if pcall(GetNumTalentTabs) then
+	if pcall(_G.GetNumTalentTabs) then
 		GetNumSpecializations 			= _G.GetNumTalentTabs
 	end
 
@@ -507,16 +507,17 @@ elseif BuildToC < 100000 then
 		wipe(TalentMap)
 		wipe(talentInfoQuery)
 		talentInfoQuery.groupIndex = GetActiveSpecGroup()
+		talentInfoQuery.specializationIndex = Action.GetCurrentSpecialization()
 		
 		local talentInfo, rank		
-		for specIndex = 1, GetNumSpecializations() do
+		--for specIndex = 1, GetNumSpecializations() do
 			for tier = 1, MAX_NUM_TALENT_TIERS do
 				for column = 1, NUM_TALENT_COLUMNS do
 					for talentIndex = 1, MAX_NUM_TALENTS do
 						talentInfoQuery.tier = tier
 						talentInfoQuery.column = column
-						talentInfoQuery.specializationIndex = specIndex
 						talentInfoQuery.talentIndex = talentIndex 				
+					  --talentInfoQuery.specializationIndex = specIndex 				
 						talentInfo = GetTalentInfo(talentInfoQuery)
 						-- isExceptional @boolean
 						-- talentID @number
@@ -536,10 +537,11 @@ elseif BuildToC < 100000 then
 						-- rank @number
 						-- available @boolean
 						-- spellID @number	
+						-- /dump C_SpecializationInfo.GetTalentInfo({tier=1,column=1,specializationIndex=1,talentIndex=1,groupIndex=1})
 						
 						if talentInfo then
 							rank = talentInfo.rank
-							if talentInfo.selected or talentInfo.grantedByAura or (rank and rank > 0) then
+							if talentInfo.selected or talentInfo.grantedByAura then
 								TalentMap[talentInfo.name] = rank or 1
 								TalentMap[talentInfo.spellID] = rank or 1
 								TalentMap[talentInfo.talentID] = rank or 1
@@ -548,7 +550,7 @@ elseif BuildToC < 100000 then
 					end
 				end
 			end
-		end
+		--end
 		
 		local _, name, ids
 		if GetPvpTalentInfoByID and GetAllSelectedPvpTalentIDs then
@@ -1429,17 +1431,17 @@ if TELLMEWHEN_VERSIONNUMBER <= 11020501 then
 		if C_SpecializationInfo_GetTalentInfo and MAX_NUM_TALENT_TIERS and NUM_TALENT_COLUMNS then
 			-- Should handle all classic versions mop and below?
 			wipe(talentInfoQuery)
-			local activeGroup = C_SpecializationInfo_GetActiveSpecGroup()
-			for specIndex = 1, GetNumSpecializations() do
+			talentInfoQuery.groupIndex = C_SpecializationInfo_GetActiveSpecGroup()
+			talentInfoQuery.specializationIndex = TMW.GetCurrentSpecialization()
+			--for specIndex = 1, GetNumSpecializations() do
 				for tier = 1, MAX_NUM_TALENT_TIERS do
 					for column = 1, NUM_TALENT_COLUMNS do 
 						for talentIndex = 1, MAX_NUM_TALENTS do
 							talentInfoQuery.tier = tier
 							talentInfoQuery.column = column
-							talentInfoQuery.specializationIndex = specIndex 
-							talentInfoQuery.groupIndex = activeGroup
+						  --talentInfoQuery.specializationIndex = specIndex 							
 							talentInfoQuery.talentIndex = talentIndex 
-							local talentInfo = C_SpecializationInfo.GetTalentInfo(talentInfoQuery)
+							local talentInfo = C_SpecializationInfo_GetTalentInfo(talentInfoQuery)
 							if talentInfo then			
 								local name = talentInfo.name
 								local tex = talentInfo.fileID
@@ -1453,7 +1455,7 @@ if TELLMEWHEN_VERSIONNUMBER <= 11020501 then
 						end
 					end
 				end
-			end
+			--end
 		elseif MAX_TALENT_TIERS then
 			for tier = 1, MAX_TALENT_TIERS do
 				for column = 1, NUM_TALENT_COLUMNS do

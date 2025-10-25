@@ -1,5 +1,5 @@
 --- 
-local DateTime 														= "22.10.2025"
+local DateTime 														= "25.10.2025"
 ---
 local pcall, ipairs, pairs, type, assert, error, setfenv, getmetatable, setmetatable, loadstring, next, unpack, select, _G, coroutine, table, math, string =
 	  pcall, ipairs, pairs, type, assert, error, setfenv, getmetatable, setmetatable, loadstring, next, unpack, select, _G, coroutine, table, math, string
@@ -59,7 +59,7 @@ local InCombatLockdown												= _G.InCombatLockdown
 local IsAltKeyDown													= _G.IsAltKeyDown
 local IsControlKeyDown												= _G.IsControlKeyDown
 local IsShiftKeyDown												= _G.IsShiftKeyDown
-local ChatEdit_InsertLink											= _G.ChatEdit_InsertLink
+local ChatEdit_InsertLink											= _G.ChatFrameUtil and _G.ChatFrameUtil.InsertLink or _G.ChatEdit_InsertLink
 local CopyTable														= _G.CopyTable
 local TOOLTIP_UPDATE_TIME											= _G.TOOLTIP_UPDATE_TIME
 
